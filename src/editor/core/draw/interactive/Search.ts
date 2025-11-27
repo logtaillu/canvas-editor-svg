@@ -11,6 +11,7 @@ import {
   ISearchResult,
   ISearchResultRestArgs
 } from '../../../interface/Search'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { getUUID, indexOf, isNumber } from '../../../utils'
 import { Position } from '../../position/Position'
 import { Draw } from '../Draw'
@@ -292,7 +293,7 @@ export class Search {
     )
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageIndex: number) {
+  public render(ctx: AbstractRender, pageIndex: number) {
     if (
       !this.searchMatchList ||
       !this.searchMatchList.length ||
@@ -304,7 +305,7 @@ export class Search {
       this.options
     const positionList = this.position.getOriginalPositionList()
     const elementList = this.draw.getOriginalElementList()
-    ctx.save()
+    ctx.save('rect')
     ctx.globalAlpha = searchMatchAlpha
     for (let s = 0; s < this.searchMatchList.length; s++) {
       const searchMatch = this.searchMatchList[s]

@@ -44,7 +44,8 @@ import {
   PageMode,
   PaperDirection,
   RenderMode,
-  WordBreak
+  WordBreak,
+  RenderType
 } from '../dataset/enum/Editor'
 import { defaultBadgeOption } from '../dataset/constant/Badge'
 import { IBadgeOption } from '../interface/Badge'
@@ -214,6 +215,7 @@ export function mergeOption(
     lineNumber: lineNumberOptions,
     pageBorder: pageBorderOptions,
     badge: badgeOptions,
-    modeRule: modeRuleOption
+    modeRule: modeRuleOption,
+    renderType: RenderType.SVG
   }
 }

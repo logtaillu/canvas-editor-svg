@@ -27,7 +27,8 @@ import {
   PageMode,
   PaperDirection,
   WordBreak,
-  RenderMode
+  RenderMode,
+  RenderType
 } from './dataset/enum/Editor'
 import { EDITOR_CLIPBOARD, EDITOR_COMPONENT } from './dataset/constant/Editor'
 import { IWatermark } from './interface/Watermark'
@@ -212,7 +213,8 @@ export {
   AreaMode,
   ControlState,
   FlexDirection,
-  WatermarkType
+  WatermarkType,
+  RenderType
 }
 
 // 对外类型

@@ -3,6 +3,7 @@ import { EDITOR_PREFIX } from '../../../dataset/constant/Editor'
 import { IEditorOption } from '../../../interface/Editor'
 import { IElementPosition } from '../../../interface/Element'
 import { IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export class HyperlinkParticle {
@@ -66,12 +67,12 @@ export class HyperlinkParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IRowElement,
     x: number,
     y: number
   ) {
-    ctx.save()
+    ctx.save('text')
     ctx.font = element.style
     if (!element.color) {
       element.color = this.options.defaultHyperlinkColor

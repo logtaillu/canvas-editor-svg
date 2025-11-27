@@ -20,6 +20,7 @@ import composition from './handlers/composition'
 import drag from './handlers/drag'
 import { isIOS } from '../../utils/ua'
 import { ICopyOption } from '../../interface/Event'
+import { AbstractRender } from '../../render/AbstractRender'
 
 export interface ICompositionInfo {
   elementList: IElement[]
@@ -44,7 +45,7 @@ export class CanvasEvent {
 
   private draw: Draw
   private pageContainer: HTMLDivElement
-  private pageList: HTMLCanvasElement[]
+  private pageList: AbstractRender[]
   private range: RangeManager
   private position: Position
 

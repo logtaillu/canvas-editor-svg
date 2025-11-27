@@ -2,6 +2,7 @@ import { IEditorOption } from '../../..'
 import { FORMAT_PLACEHOLDER } from '../../../dataset/constant/PageNumber'
 import { WatermarkType } from '../../../dataset/enum/Watermark'
 import { DeepRequired } from '../../../interface/Common'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 import { PageNumber } from './PageNumber'
 
@@ -16,7 +17,7 @@ export class Watermark {
     this.imageCache = new Map()
   }
 
-  public renderText(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public renderText(ctx: AbstractRender, pageNo: number) {
     const {
       watermark: { data, opacity, font, size, color, repeat, gap, numberType },
       scale
@@ -24,7 +25,7 @@ export class Watermark {
     const width = this.draw.getWidth()
     const height = this.draw.getHeight()
     // 开始绘制
-    ctx.save()
+    ctx.save(repeat ? 'defs' : 'text')
     ctx.globalAlpha = opacity
     ctx.font = `${size * scale}px ${font}`
     // 格式化文本
@@ -48,7 +49,7 @@ export class Watermark {
       )
     }
     // 测量长度并绘制
-    const measureText = ctx.measureText(text)
+    const measureText = ctx.measureText(text, `${size * scale}px ${font}`)
     if (repeat) {
       const dpr = this.draw.getPagePixelRatio()
       const temporaryCanvas = document.createElement('canvas')
@@ -82,11 +83,7 @@ export class Watermark {
         (patternHeight - textHeight) / 2 + measureText.actualBoundingBoxAscent
       )
       // 创建平铺模式
-      const pattern = ctx.createPattern(temporaryCanvas, 'repeat')
-      if (pattern) {
-        ctx.fillStyle = pattern
-        ctx.fillRect(0, 0, width, height)
-      }
+      ctx.createPattern(temporaryCanvas, 'repeat', width, height)
     } else {
       const x = width / 2
       const y = height / 2
@@ -102,7 +99,7 @@ export class Watermark {
     ctx.restore()
   }
 
-  public renderImage(ctx: CanvasRenderingContext2D) {
+  public renderImage(ctx: AbstractRender) {
     const {
       watermark: { width, height, data, opacity, repeat, gap },
       scale
@@ -126,7 +123,7 @@ export class Watermark {
     const imageWidth = width * scale
     const imageHeight = height * scale
     // 开始绘制
-    ctx.save()
+    ctx.save(repeat ? 'defs' : 'image')
     ctx.globalAlpha = opacity
     if (repeat) {
       const dpr = this.draw.getPagePixelRatio()
@@ -157,11 +154,7 @@ export class Watermark {
         imageHeight
       )
       // 创建平铺模式
-      const pattern = ctx.createPattern(temporaryCanvas, 'repeat')
-      if (pattern) {
-        ctx.fillStyle = pattern
-        ctx.fillRect(0, 0, docWidth, docHeight)
-      }
+      ctx.createPattern(temporaryCanvas, 'repeat', width, height)
     } else {
       const x = docWidth / 2
       const y = docHeight / 2
@@ -178,7 +171,7 @@ export class Watermark {
     ctx.restore()
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public render(ctx: AbstractRender, pageNo: number) {
     if (this.options.watermark.type === WatermarkType.IMAGE) {
       this.renderImage(ctx)
     } else {

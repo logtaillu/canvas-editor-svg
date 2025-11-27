@@ -24,6 +24,7 @@ import { Placeholder } from '../frame/Placeholder'
 import { defaultPlaceholderOption } from '../../../dataset/constant/Placeholder'
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
+import { AbstractRender } from '../../../render/AbstractRender'
 
 export class Area {
   private draw: Draw
@@ -116,9 +117,9 @@ export class Area {
     return areaId
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public render(ctx: AbstractRender, pageNo: number) {
     if (!this.areaInfoMap.size) return
-    ctx.save()
+    ctx.save('g')
     const margins = this.draw.getMargins()
     const width = this.draw.getInnerWidth()
     for (const areaInfoItem of this.areaInfoMap) {
@@ -140,13 +141,17 @@ export class Area {
       const height = Math.ceil(lastPosition.coordinate.rightBottom[1] - y)
       // 背景色
       if (area.backgroundColor) {
+        ctx.begin('rect')
         ctx.fillStyle = area.backgroundColor
         ctx.fillRect(x, y, width, height)
+        ctx.end()
       }
       // 边框
       if (area.borderColor) {
+        ctx.begin('rect')
         ctx.strokeStyle = area.borderColor
         ctx.strokeRect(x, y, width, height)
+        ctx.end()
       }
       // 提示词
       if (area.placeholder && positionList.length <= 1) {
@@ -159,7 +164,7 @@ export class Area {
           startY: firstPosition.coordinate.leftTop[1]
         })
       }
-      ctx.translate(-0.5, -0.5)
+      ctx.translateBack()
     }
     ctx.restore()
   }

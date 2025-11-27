@@ -1,6 +1,7 @@
 import { EDITOR_PREFIX } from '../../../../dataset/constant/Editor'
 import { ElementType } from '../../../../dataset/enum/Element'
 import { IRowElement } from '../../../../interface/Row'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { Draw } from '../../Draw'
 import { BaseBlock } from './modules/BaseBlock'
 
@@ -33,7 +34,7 @@ export class BlockParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     pageNo: number,
     element: IRowElement,
     x: number,

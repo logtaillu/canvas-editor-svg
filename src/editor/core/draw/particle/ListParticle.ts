@@ -7,6 +7,7 @@ import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { IElement, IElementPosition } from '../../../interface/Element'
 import { IRow, IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { getUUID } from '../../../utils'
 import { RangeManager } from '../../range/RangeManager'
 import { Draw } from '../Draw'
@@ -164,7 +165,7 @@ export class ListParticle {
   }
 
   public drawListStyle(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     row: IRow,
     position: IElementPosition
   ) {
@@ -221,7 +222,7 @@ export class ListParticle {
         text = `${listIndex! + 1}${KeyMap.PERIOD}`
       }
       if (!text) return
-      ctx.save()
+      ctx.save('text')
       ctx.font = `${defaultSize * scale}px ${defaultFont}`
       ctx.fillText(text, x, y)
       ctx.restore()

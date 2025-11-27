@@ -7,13 +7,14 @@ import {
   IPreviewerCreateResult,
   IPreviewerDrawOption
 } from '../../../../interface/Previewer'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { downloadFile } from '../../../../utils'
 import { EventBus } from '../../../event/eventbus/EventBus'
 import { Draw } from '../../Draw'
 
 export class Previewer {
   private container: HTMLDivElement
-  private canvas: HTMLCanvasElement
+  private canvas: AbstractRender
   private draw: Draw
   private options: Required<IEditorOption>
   private curElement: IElement | null

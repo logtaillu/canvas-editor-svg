@@ -36,7 +36,7 @@ export interface IPrintImageBase64Option {
   direction?: PaperDirection
 }
 export function printImageBase64(
-  base64List: string[],
+  svgList: string[],
   options: IPrintImageBase64Option
 ) {
   const { width, height, direction = PaperDirection.VERTICAL } = options
@@ -55,8 +55,8 @@ export function printImageBase64(
   doc.open()
   const container = document.createElement('div')
   const paperSize = convertPxToPaperSize(width, height)
-  base64List.forEach(base64 => {
-    const image = document.createElement('img')
+  svgList.forEach(svg => {
+    const image = document.createElement('div')
     image.style.width =
       direction === PaperDirection.HORIZONTAL
         ? paperSize.height
@@ -65,7 +65,7 @@ export function printImageBase64(
       direction === PaperDirection.HORIZONTAL
         ? paperSize.width
         : paperSize.height
-    image.src = base64
+    image.innerHTML = svg
     container.append(image)
   })
   const style = document.createElement('style')

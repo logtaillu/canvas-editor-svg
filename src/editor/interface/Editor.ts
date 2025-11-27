@@ -3,6 +3,7 @@ import {
   PageMode,
   PaperDirection,
   RenderMode,
+  RenderType,
   WordBreak
 } from '../dataset/enum/Editor'
 import { IBackgroundOption } from './Background'
@@ -102,6 +103,7 @@ export interface IEditorOption {
   pageBorder?: IPageBorderOption
   badge?: IBadgeOption
   modeRule?: IModeRule
+  renderType?: RenderType
 }
 
 export interface IEditorResult {

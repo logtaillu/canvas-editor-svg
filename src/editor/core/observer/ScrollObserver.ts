@@ -63,7 +63,7 @@ export class ScrollObserver {
     let intersectionMaxHeight = 0
     for (let i = 0; i < pageList.length; i++) {
       const curPage = pageList[i]
-      const { intersectionHeight } = this.getElementVisibleInfo(curPage)
+      const { intersectionHeight } = this.getElementVisibleInfo(curPage.element)
       // 之前页存在交叉 && 当前页不交叉则后续均不交叉，结束循环
       if (intersectionMaxHeight && !intersectionHeight) break
       if (intersectionHeight) {

@@ -12,6 +12,7 @@ import {
   ISearchResult,
   ISearchResultRestArgs
 } from '../../../../interface/Search'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { Draw } from '../../Draw'
 import { Control } from '../Control'
 
@@ -178,12 +179,12 @@ export class ControlSearch {
     computeHighlight(this.draw.getOriginalMainElementList())
   }
 
-  public renderHighlightList(ctx: CanvasRenderingContext2D, pageIndex: number) {
+  public renderHighlightList(ctx: AbstractRender, pageIndex: number) {
     if (!this.highlightMatchResult?.length) return
     const { searchMatchAlpha, searchMatchColor } = this.options
     const positionList = this.draw.getPosition().getOriginalPositionList()
     const elementList = this.draw.getOriginalElementList()
-    ctx.save()
+    ctx.save('g')
     for (let s = 0; s < this.highlightMatchResult.length; s++) {
       const searchMatch = this.highlightMatchResult[s]
       let position: IElementPosition | null = null
@@ -201,6 +202,7 @@ export class ControlSearch {
         pageNo
       } = position
       if (pageNo !== pageIndex) continue
+      ctx.begin('rect')
       ctx.fillStyle = searchMatch.backgroundColor || searchMatchColor
       ctx.globalAlpha = searchMatch.alpha || searchMatchAlpha
       const x = leftTop[0]
@@ -208,6 +210,7 @@ export class ControlSearch {
       const width = rightTop[0] - leftTop[0]
       const height = leftBottom[1] - leftTop[1]
       ctx.fillRect(x, y, width, height)
+      ctx.end()
     }
     ctx.restore()
   }

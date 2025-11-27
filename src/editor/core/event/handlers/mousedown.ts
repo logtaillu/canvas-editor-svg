@@ -1,11 +1,11 @@
 import { ImageDisplay } from '../../../dataset/enum/Common'
-import { EditorMode } from '../../../dataset/enum/Editor'
+import { EditorMode, RenderType } from '../../../dataset/enum/Editor'
 import { ElementType } from '../../../dataset/enum/Element'
 import { MouseEventButton } from '../../../dataset/enum/Event'
 import { ControlComponent } from '../../../dataset/enum/Control'
 import { ControlType } from '../../../dataset/enum/Control'
 import { IPreviewerDrawOption } from '../../../interface/Previewer'
-import { deepClone } from '../../../utils'
+import { deepClone, findParent } from '../../../utils'
 import { isMod } from '../../../utils/hotkey'
 import { CheckboxControl } from '../../draw/control/checkbox/CheckboxControl'
 import { RadioControl } from '../../draw/control/radio/RadioControl'
@@ -87,7 +87,7 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
       }
     }
   }
-  const target = evt.target as HTMLDivElement
+  const target = draw.getOptions().renderType === RenderType.CANVAS ? evt.target as HTMLDivElement : <SVGElement>findParent(<SVGElement>evt.target, (node: Node) => node.nodeName === 'svg')
   const pageIndex = target.dataset.index
   // 设置pageNo
   if (pageIndex) {

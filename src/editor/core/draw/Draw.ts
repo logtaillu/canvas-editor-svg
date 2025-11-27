@@ -64,6 +64,7 @@ import {
   EditorZone,
   PageMode,
   PaperDirection,
+  RenderType,
   WordBreak
 } from '../../dataset/enum/Editor'
 import { Control } from './control/Control'
@@ -113,12 +114,13 @@ import { Actuator } from '../actuator/Actuator'
 import { TableOperate } from './particle/table/TableOperate'
 import { Area } from './interactive/Area'
 import { Badge } from './frame/Badge'
-
+import { AbstractRender } from '../../render/AbstractRender'
+import SVGRender from '../../render/SvgRender'
+import CanvasRender from '../../render/CanvasRender'
 export class Draw {
   private container: HTMLDivElement
   private pageContainer: HTMLDivElement
-  private pageList: HTMLCanvasElement[]
-  private ctxList: CanvasRenderingContext2D[]
+  private pageList: AbstractRender[]
   private pageNo: number
   private renderCount: number
   private pagePixelRatio: number | null
@@ -198,7 +200,6 @@ export class Draw {
   ) {
     this.container = this._wrapContainer(rootContainer)
     this.pageList = []
-    this.ctxList = []
     this.pageNo = 0
     this.renderCount = 0
     this.pagePixelRatio = null
@@ -555,11 +556,11 @@ export class Draw {
     return this.renderCount
   }
 
-  public getPage(pageNo = -1): HTMLCanvasElement {
+  public getPage(pageNo = -1): AbstractRender {
     return this.pageList[~pageNo ? pageNo : this.pageNo]
   }
 
-  public getPageList(): HTMLCanvasElement[] {
+  public getPageList(): AbstractRender[] {
     return this.pageList
   }
 
@@ -593,10 +594,6 @@ export class Draw {
 
   public getPageRowList(): IRow[][] {
     return this.pageRowList
-  }
-
-  public getCtx(): CanvasRenderingContext2D {
-    return this.ctxList[this.pageNo]
   }
 
   public getOptions(): DeepRequired<IEditorOption> {
@@ -1020,7 +1017,7 @@ export class Draw {
       canvas.style.height = `${height}px`
       canvas.height = height * dpr
       // canvas尺寸发生变化，上下文被重置
-      this._initPageContext(this.ctxList[0])
+      this._initPageContext(this.pageList[0].ctx)
     } else {
       // 连页模式：移除懒加载监听&清空页眉页脚计算数据
       this._disconnectLazyRender()
@@ -1058,13 +1055,13 @@ export class Draw {
     const width = this.getWidth()
     const height = this.getHeight()
     this.container.style.width = `${width}px`
-    this.pageList.forEach((p, i) => {
+    this.pageList.forEach((p) => {
       p.width = width * dpr
       p.height = height * dpr
       p.style.width = `${width}px`
       p.style.height = `${height}px`
       p.style.marginBottom = `${this.getPageGap()}px`
-      this._initPageContext(this.ctxList[i])
+      this._initPageContext(p.ctx)
     })
     const cursorPosition = this.position.getCursorPosition()
     this.render({
@@ -1081,13 +1078,16 @@ export class Draw {
   }
 
   public getPagePixelRatio(): number {
-    return this.pagePixelRatio || window.devicePixelRatio
+    if (this.options.renderType === RenderType.CANVAS) {
+      return this.pagePixelRatio || window.devicePixelRatio
+    }
+    return 1
   }
 
   public setPagePixelRatio(payload: number | null) {
     if (
       (!this.pagePixelRatio && payload === window.devicePixelRatio) ||
-      payload === this.pagePixelRatio
+      payload === this.pagePixelRatio || this.options.renderType !== RenderType.CANVAS
     ) {
       return
     }
@@ -1099,10 +1099,10 @@ export class Draw {
     const dpr = this.getPagePixelRatio()
     const width = this.getWidth()
     const height = this.getHeight()
-    this.pageList.forEach((p, i) => {
+    this.pageList.forEach((p) => {
       p.width = width * dpr
       p.height = height * dpr
-      this._initPageContext(this.ctxList[i])
+      this._initPageContext(p.ctx)
     })
     this.render({
       isSubmitHistory: false,
@@ -1117,12 +1117,12 @@ export class Draw {
     const realWidth = this.getWidth()
     const realHeight = this.getHeight()
     this.container.style.width = `${realWidth}px`
-    this.pageList.forEach((p, i) => {
+    this.pageList.forEach((p) => {
       p.width = realWidth * dpr
       p.height = realHeight * dpr
       p.style.width = `${realWidth}px`
       p.style.height = `${realHeight}px`
-      this._initPageContext(this.ctxList[i])
+      this._initPageContext(p.ctx)
     })
     this.render({
       isSubmitHistory: false,
@@ -1136,12 +1136,12 @@ export class Draw {
     const width = this.getWidth()
     const height = this.getHeight()
     this.container.style.width = `${width}px`
-    this.pageList.forEach((p, i) => {
+    this.pageList.forEach((p) => {
       p.width = width * dpr
       p.height = height * dpr
       p.style.width = `${width}px`
       p.style.height = `${height}px`
-      this._initPageContext(this.ctxList[i])
+      this._initPageContext(p.ctx)
     })
     this.render({
       isSubmitHistory: false,
@@ -1271,28 +1271,29 @@ export class Draw {
   private _createPage(pageNo: number) {
     const width = this.getWidth()
     const height = this.getHeight()
-    const canvas = document.createElement('canvas')
-    canvas.style.width = `${width}px`
-    canvas.style.height = `${height}px`
-    canvas.style.display = 'block'
-    canvas.style.backgroundColor = '#ffffff'
-    canvas.style.marginBottom = `${this.getPageGap()}px`
-    canvas.setAttribute('data-index', String(pageNo))
-    this.pageContainer.append(canvas)
+    const Creator = this.options.renderType === 'svg' ? SVGRender : CanvasRender
+    const page = new Creator({
+      width,
+      height
+    })
+    page.style.display = 'block'
+    page.style.backgroundColor = '#ffffff'
+    page.style.marginBottom = `${this.getPageGap()}px`
+    page.setAttribute('data-index', String(pageNo))
+    this.pageContainer.append(page.element)
     // 调整分辨率
     const dpr = this.getPagePixelRatio()
-    canvas.width = width * dpr
-    canvas.height = height * dpr
-    canvas.style.cursor = 'text'
-    const ctx = canvas.getContext('2d')!
+    page.width = width * dpr
+    page.height = height * dpr
+    page.style.cursor = 'text'
     // 初始化上下文配置
-    this._initPageContext(ctx)
+    this._initPageContext(page.ctx)
     // 缓存上下文
-    this.pageList.push(canvas)
-    this.ctxList.push(ctx)
+    this.pageList.push(page)
   }
 
-  private _initPageContext(ctx: CanvasRenderingContext2D) {
+  private _initPageContext(ctx: CanvasRenderingContext2D | null) {
+    if(!ctx) return
     const dpr = this.getPagePixelRatio()
     ctx.scale(dpr, dpr)
     // 重置以下属性是因部分浏览器(chrome)会应用css样式
@@ -2022,7 +2023,7 @@ export class Draw {
         pageDom.style.height = `${reduceHeight}px`
         pageDom.height = reduceHeight * dpr
       }
-      this._initPageContext(this.ctxList[0])
+      this._initPageContext(this.pageList[0].ctx)
     } else {
       for (let i = 0; i < this.rowList.length; i++) {
         const row = this.rowList[i]
@@ -2048,7 +2049,7 @@ export class Draw {
   }
 
   private _drawHighlight(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     payload: IDrawRowPayload
   ) {
     const { rowList, positionList, elementList } = payload
@@ -2097,7 +2098,7 @@ export class Draw {
     }
   }
 
-  public drawRow(ctx: CanvasRenderingContext2D, payload: IDrawRowPayload) {
+  public drawRow(ctx: AbstractRender, payload: IDrawRowPayload) {
     // 优先绘制高亮元素
     this._drawHighlight(ctx, payload)
     // 绘制元素、下划线、删除线、选区
@@ -2326,7 +2327,7 @@ export class Draw {
               this.strikeout.render(ctx)
             }
             // 基线文字测量信息
-            const standardMetrics = this.textParticle.measureBasisWord(
+            const standardMetrics = this.textParticle.measureRenderWord(
               ctx,
               this.getElementFont(element)
             )
@@ -2454,7 +2455,7 @@ export class Draw {
   }
 
   private _drawFloat(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     payload: IDrawFloatPayload
   ) {
     const { scale } = this.options
@@ -2483,14 +2484,8 @@ export class Draw {
   }
 
   private _clearPage(pageNo: number) {
-    const ctx = this.ctxList[pageNo]
     const pageDom = this.pageList[pageNo]
-    ctx.clearRect(
-      0,
-      0,
-      Math.max(pageDom.width, this.getWidth()),
-      Math.max(pageDom.height, this.getHeight())
-    )
+    pageDom.clear(this.getWidth(), this.getHeight())
     this.blockParticle.clear()
   }
 
@@ -2507,41 +2502,42 @@ export class Draw {
     } = this.options
     const isPrintMode = this.mode === EditorMode.PRINT
     const innerWidth = this.getInnerWidth()
-    const ctx = this.ctxList[pageNo]
-    // 判断当前激活区域-非正文区域时元素透明度降低
-    ctx.globalAlpha = !this.zone.isMainActive() ? inactiveAlpha : 1
+    const page = this.pageList[pageNo]
     this._clearPage(pageNo)
+    page.begin('g')
+    // 判断当前激活区域-非正文区域时元素透明度降低
+    page.globalAlpha = !this.zone.isMainActive() ? inactiveAlpha : 1
     // 绘制背景
     if (
       !isPrintMode ||
       !this.options.modeRule[EditorMode.PRINT]?.backgroundDisabled
     ) {
-      this.background.render(ctx, pageNo)
+      this.background.render(page, pageNo)
     }
     // 绘制区域
     if (!isPrintMode) {
-      this.area.render(ctx, pageNo)
+      this.area.render(page, pageNo)
     }
     // 绘制水印
     if (pageMode !== PageMode.CONTINUITY && this.options.watermark.data) {
-      this.waterMark.render(ctx, pageNo)
+      this.waterMark.render(page, pageNo)
     }
     // 绘制页边距
     if (!isPrintMode) {
-      this.margin.render(ctx, pageNo)
+      this.margin.render(page, pageNo)
     }
     // 渲染衬于文字下方元素
-    this._drawFloat(ctx, {
+    this._drawFloat(page, {
       pageNo,
       imgDisplays: [ImageDisplay.FLOAT_BOTTOM]
     })
     // 控件高亮
     if (!isPrintMode) {
-      this.control.renderHighlightList(ctx, pageNo)
+      this.control.renderHighlightList(page, pageNo)
     }
     // 渲染元素
     const index = rowList[0]?.startIndex
-    this.drawRow(ctx, {
+    this.drawRow(page, {
       elementList,
       positionList,
       rowList,
@@ -2550,43 +2546,45 @@ export class Draw {
       innerWidth,
       zone: EditorZone.MAIN
     })
+    page.end()
     if (this.getIsPagingMode()) {
       // 绘制页眉
       if (!header.disabled) {
-        this.header.render(ctx, pageNo)
+        this.header.render(page, pageNo)
       }
       // 绘制页码
       if (!pageNumber.disabled) {
-        this.pageNumber.render(ctx, pageNo)
+        this.pageNumber.render(page, pageNo)
       }
       // 绘制页脚
       if (!footer.disabled) {
-        this.footer.render(ctx, pageNo)
+        this.footer.render(page, pageNo)
       }
     }
     // 渲染浮于文字上方元素
-    this._drawFloat(ctx, {
+    this._drawFloat(page, {
       pageNo,
       imgDisplays: [ImageDisplay.FLOAT_TOP, ImageDisplay.SURROUND]
     })
     // 搜索匹配绘制
     if (!isPrintMode && this.search.getSearchKeyword()) {
-      this.search.render(ctx, pageNo)
+      this.search.render(page, pageNo)
     }
     // 绘制空白占位符
     if (this.elementList.length <= 1 && !this.elementList[0]?.listId) {
-      this.placeholder.render(ctx)
+      this.placeholder.render(page)
     }
     // 渲染行数
     if (!lineNumber.disabled) {
-      this.lineNumber.render(ctx, pageNo)
+      this.lineNumber.render(page, pageNo)
     }
     // 绘制页面边框
     if (!pageBorder.disabled) {
-      this.pageBorder.render(ctx)
+      this.pageBorder.render(page)
     }
     // 绘制签章
-    this.badge.render(ctx, pageNo)
+    this.badge.render(page, pageNo)
+    page.render()
   }
 
   private _disconnectLazyRender() {
@@ -2600,7 +2598,7 @@ export class Draw {
     this.lazyRenderIntersectionObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const index = Number((<HTMLCanvasElement>entry.target).dataset.index)
+          const index = Number((<HTMLCanvasElement | SVGElement>entry.target).dataset.index)
           this._drawPage({
             elementList,
             positionList,
@@ -2610,8 +2608,8 @@ export class Draw {
         }
       })
     })
-    this.pageList.forEach(el => {
-      this.lazyRenderIntersectionObserver!.observe(el)
+    this.pageList.forEach(page => {
+      this.lazyRenderIntersectionObserver!.observe(page.element)
     })
   }
 
@@ -2707,10 +2705,9 @@ export class Draw {
     const prePageCount = this.pageList.length
     if (prePageCount > curPageCount) {
       const deleteCount = prePageCount - curPageCount
-      this.ctxList.splice(curPageCount, deleteCount)
       this.pageList
         .splice(curPageCount, deleteCount)
-        .forEach(page => page.remove())
+        .forEach(page => page.element.remove())
     }
     // 绘制元素
     // 连续页因为有高度的变化会导致canvas渲染空白，需立即渲染，否则会出现闪动

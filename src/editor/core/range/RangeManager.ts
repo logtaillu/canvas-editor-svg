@@ -15,6 +15,7 @@ import {
   RangeRowArray,
   RangeRowMap
 } from '../../interface/Range'
+import { AbstractRender } from '../../render/AbstractRender'
 import { getAnchorElement } from '../../utils/element'
 import { Draw } from '../draw/Draw'
 import { EventBus } from '../event/eventbus/EventBus'
@@ -696,13 +697,13 @@ export class RangeManager {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     x: number,
     y: number,
     width: number,
     height: number
   ) {
-    ctx.save()
+    ctx.save('rect')
     ctx.globalAlpha = this.options.rangeAlpha
     ctx.fillStyle = this.options.rangeColor
     ctx.fillRect(x, y, width, height)

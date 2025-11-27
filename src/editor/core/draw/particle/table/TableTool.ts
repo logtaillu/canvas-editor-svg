@@ -3,6 +3,7 @@ import { EDITOR_PREFIX } from '../../../../dataset/constant/Editor'
 import { TableOrder } from '../../../../dataset/enum/table/TableTool'
 import { DeepRequired } from '../../../../interface/Common'
 import { IEditorOption } from '../../../../interface/Editor'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { Position } from '../../../position/Position'
 import { RangeManager } from '../../../range/RangeManager'
 import { Draw } from '../../Draw'
@@ -33,7 +34,7 @@ export class TableTool {
   private readonly TABLE_SELECT_OFFSET = 20
 
   private draw: Draw
-  private canvas: HTMLCanvasElement
+  private canvas: AbstractRender
   private options: DeepRequired<IEditorOption>
   private position: Position
   private range: RangeManager
@@ -397,7 +398,7 @@ export class TableTool {
     this.mousedownX = evt.x
     this.mousedownY = evt.y
     const target = evt.target as HTMLDivElement
-    const canvasRect = this.canvas.getBoundingClientRect()
+    const canvasRect = this.canvas.element.getBoundingClientRect()
     // 改变光标
     const cursor = window.getComputedStyle(target).cursor
     document.body.style.cursor = cursor

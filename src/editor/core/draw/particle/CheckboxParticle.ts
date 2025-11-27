@@ -4,10 +4,11 @@ import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { IElement } from '../../../interface/Element'
 import { IRow, IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 interface ICheckboxRenderOption {
-  ctx: CanvasRenderingContext2D
+  ctx: AbstractRender
   x: number
   y: number
   row: IRow
@@ -78,9 +79,9 @@ export class CheckboxParticle {
     const top = Math.round(y - metrics.height + lineWidth)
     const width = metrics.width - gap * 2 * scale
     const height = metrics.height
-    ctx.save()
-    ctx.beginPath()
+    ctx.save('g')
     ctx.translate(0.5, 0.5)
+    ctx.beginPath()
     // 绘制勾选状态
     if (checkbox?.value) {
       // 边框
@@ -101,6 +102,7 @@ export class CheckboxParticle {
       ctx.lineTo(left + width - 2 * scale, top + 3 * scale)
       ctx.stroke()
     } else {
+      ctx.strokeStyle = '#000000'
       ctx.lineWidth = lineWidth
       ctx.rect(left, top, width, height)
       ctx.stroke()

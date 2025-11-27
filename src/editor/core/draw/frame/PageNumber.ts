@@ -3,6 +3,7 @@ import { NumberType } from '../../../dataset/enum/Common'
 import { RowFlex } from '../../../dataset/enum/Row'
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { convertNumberToChinese } from '../../../utils'
 import { Draw } from '../Draw'
 
@@ -28,7 +29,7 @@ export class PageNumber {
     return text.replace(replaceReg, pageNoText)
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public render(ctx: AbstractRender, pageNo: number) {
     const {
       scale,
       pageNumber: {
@@ -68,13 +69,13 @@ export class PageNumber {
     const height = this.draw.getHeight()
     const pageNumberBottom = this.draw.getPageNumberBottom()
     const y = height - pageNumberBottom
-    ctx.save()
+    ctx.save('text')
     ctx.fillStyle = color
     ctx.font = `${size * scale}px ${font}`
     // 计算x位置-居左、居中、居右
     let x = 0
     const margins = this.draw.getMargins()
-    const { width: textWidth } = ctx.measureText(text)
+    const { width: textWidth } = ctx.measureText(text, `${size * scale}px ${font}`)
     if (rowFlex === RowFlex.CENTER) {
       x = (width - textWidth) / 2
     } else if (rowFlex === RowFlex.RIGHT) {

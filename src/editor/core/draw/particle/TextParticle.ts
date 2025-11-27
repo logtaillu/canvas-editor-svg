@@ -6,6 +6,7 @@ import {
 import { DeepRequired } from '../../../interface/Common'
 import { IRowElement } from '../../../interface/Row'
 import { ITextMetrics } from '../../../interface/Text'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export interface IMeasureWordResult {
@@ -17,25 +18,24 @@ export class TextParticle {
   private draw: Draw
   private options: DeepRequired<IEditorOption>
 
-  private ctx: CanvasRenderingContext2D
+  private ctx: AbstractRender
   private curX: number
   private curY: number
   private text: string
-  private curStyle: string
-  private curColor?: string
+  private curElement?: IRowElement | null
   public cacheMeasureText: Map<string, TextMetrics>
 
   constructor(draw: Draw) {
     this.draw = draw
     this.options = draw.getOptions()
-    this.ctx = draw.getCtx()
+    this.ctx = draw.getPage()
     this.curX = -1
     this.curY = -1
     this.text = ''
-    this.curStyle = ''
+    this.curElement = null
     this.cacheMeasureText = new Map()
   }
-
+  // 这里可能是render进来
   public measureBasisWord(
     ctx: CanvasRenderingContext2D,
     font: string
@@ -46,6 +46,17 @@ export class TextParticle {
       value: METRICS_BASIS_TEXT
     })
     ctx.restore()
+    return textMetrics
+  }
+  public measureRenderWord(render: AbstractRender,
+    font: string) {
+    render.save()
+    const ctx = render.getContext()
+    ctx.font = font
+    const textMetrics = this.measureText(ctx, {
+      value: METRICS_BASIS_TEXT
+    })
+    render.restore()
     return textMetrics
   }
 
@@ -119,7 +130,7 @@ export class TextParticle {
   }
 
   public record(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IRowElement,
     x: number,
     y: number
@@ -129,8 +140,7 @@ export class TextParticle {
     if (this.options.renderMode === RenderMode.COMPATIBILITY) {
       this._setCurXY(x, y)
       this.text = element.value
-      this.curStyle = element.style
-      this.curColor = element.color
+      this.curElement = element
       this.complete()
       return
     }
@@ -140,15 +150,14 @@ export class TextParticle {
     }
     // 样式发生改变
     if (
-      (this.curStyle && element.style !== this.curStyle) ||
-      element.color !== this.curColor
+      (this.curElement && element.style !== this.curElement.style) ||
+      element.color !== this.curElement?.color
     ) {
       this.complete()
       this._setCurXY(x, y)
     }
     this.text += element.value
-    this.curStyle = element.style
-    this.curColor = element.color
+    this.curElement = element
   }
 
   private _setCurXY(x: number, y: number) {
@@ -157,10 +166,10 @@ export class TextParticle {
   }
 
   private _render() {
-    if (!this.text || !~this.curX || !~this.curX) return
-    this.ctx.save()
-    this.ctx.font = this.curStyle
-    this.ctx.fillStyle = this.curColor || this.options.defaultColor
+    if (!this.text || !~this.curX || !~this.curX || !this.curElement) return
+    this.ctx.save('text')
+    this.ctx.font = this.curElement.style
+    this.ctx.fillStyle = this.curElement.color || this.options.defaultColor
     this.ctx.fillText(this.text, this.curX, this.curY)
     this.ctx.restore()
   }

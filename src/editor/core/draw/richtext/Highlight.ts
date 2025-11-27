@@ -1,6 +1,7 @@
 import { AbstractRichText } from './AbstractRichText'
 import { IEditorOption } from '../../../interface/Editor'
 import { Draw } from '../Draw'
+import { AbstractRender } from '../../../render/AbstractRender'
 
 export class Highlight extends AbstractRichText {
   private options: Required<IEditorOption>
@@ -10,11 +11,11 @@ export class Highlight extends AbstractRichText {
     this.options = draw.getOptions()
   }
 
-  public render(ctx: CanvasRenderingContext2D) {
+  public render(ctx: AbstractRender) {
     if (!this.fillRect.width) return
     const { highlightAlpha } = this.options
     const { x, y, width, height } = this.fillRect
-    ctx.save()
+    ctx.save('rect')
     ctx.globalAlpha = highlightAlpha
     ctx.fillStyle = this.fillColor!
     ctx.fillRect(x, y, width, height)

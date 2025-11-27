@@ -1,6 +1,7 @@
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export class SeparatorParticle {
@@ -11,12 +12,12 @@ export class SeparatorParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IRowElement,
     x: number,
     y: number
   ) {
-    ctx.save()
+    ctx.save('line')
     const {
       scale,
       separator: { lineWidth, strokeStyle }

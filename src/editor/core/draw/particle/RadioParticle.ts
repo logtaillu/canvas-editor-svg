@@ -4,10 +4,11 @@ import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { IElement } from '../../../interface/Element'
 import { IRow, IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 interface IRadioRenderOption {
-  ctx: CanvasRenderingContext2D
+  ctx: AbstractRender
   x: number
   y: number
   row: IRow
@@ -78,18 +79,20 @@ export class RadioParticle {
     const top = Math.round(y - metrics.height + lineWidth)
     const width = metrics.width - gap * 2 * scale
     const height = metrics.height
-    ctx.save()
-    ctx.beginPath()
+    ctx.save('g')
     ctx.translate(0.5, 0.5)
+    ctx.beginPath()
     // 边框
     ctx.strokeStyle = radio?.value ? fillStyle : strokeStyle
     ctx.lineWidth = lineWidth
+    ctx.moveTo(left + width, top + height / 2)
     ctx.arc(left + width / 2, top + height / 2, width / 2, 0, Math.PI * 2)
     ctx.stroke()
     // 填充选中色
     if (radio?.value) {
       ctx.beginPath()
       ctx.fillStyle = fillStyle
+      ctx.moveTo(left + width, top + height / 2)
       ctx.arc(left + width / 2, top + height / 2, width / 3, 0, Math.PI * 2)
       ctx.fill()
     }

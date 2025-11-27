@@ -1,4 +1,5 @@
 import { IElement } from '../../../../interface/Element'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { ImageParticle } from '../ImageParticle'
 import { LaTexSVG, LaTexUtils } from './utils/LaTexUtils'
 
@@ -13,7 +14,7 @@ export class LaTexParticle extends ImageParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IElement,
     x: number,
     y: number

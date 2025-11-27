@@ -3,6 +3,7 @@ import { DeepRequired } from '../../../interface/Common'
 import { IElementPosition } from '../../../interface/Element'
 import { IPlaceholder } from '../../../interface/Placeholder'
 import { IRow } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { formatElementList } from '../../../utils/element'
 import { Position } from '../../position/Position'
 import { Draw } from '../Draw'
@@ -75,7 +76,7 @@ export class Placeholder {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     options?: IPlaceholderRenderOption
   ) {
     const { placeholder = this.options.placeholder } = options || {}
@@ -98,7 +99,7 @@ export class Placeholder {
     this._compute(options)
     const innerWidth = this.draw.getInnerWidth()
     // 绘制
-    ctx.save()
+    ctx.save('g')
     ctx.globalAlpha = opacity
     this.draw.drawRow(ctx, {
       elementList: this.elementList,

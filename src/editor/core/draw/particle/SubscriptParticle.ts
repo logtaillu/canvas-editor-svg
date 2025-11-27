@@ -1,4 +1,5 @@
 import { IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 
 export class SubscriptParticle {
   // 向下偏移字高的一半
@@ -7,12 +8,12 @@ export class SubscriptParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IRowElement,
     x: number,
     y: number
   ) {
-    ctx.save()
+    ctx.save('text')
     ctx.font = element.style
     if (element.color) {
       ctx.fillStyle = element.color

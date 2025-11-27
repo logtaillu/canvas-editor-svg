@@ -1,6 +1,7 @@
 import { IAreaBadge, IBadge } from '../../../interface/Badge'
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export class Badge {
@@ -30,7 +31,7 @@ export class Badge {
   }
 
   private _drawImage(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     x: number,
     y: number,
     width: number,
@@ -51,7 +52,7 @@ export class Badge {
     }
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public render(ctx: AbstractRender, pageNo: number) {
     // 文档签章
     if (pageNo === 0 && this.mainBadge) {
       const { scale, badge } = this.options

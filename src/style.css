@@ -794,7 +794,7 @@ ul {
   margin: 80px auto;
 }
 
-.ce-page-container canvas {
+.ce-page-container canvas,.ce-page-container svg {
   box-shadow: rgb(158 161 165 / 40%) 0px 2px 12px 0px;
 }
 

@@ -1,5 +1,6 @@
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 import { Footer } from './Footer'
 import { Header } from './Header'
@@ -17,12 +18,12 @@ export class PageBorder {
     this.options = draw.getOptions()
   }
 
-  public render(ctx: CanvasRenderingContext2D) {
+  public render(ctx: AbstractRender) {
     const {
       scale,
       pageBorder: { color, lineWidth, padding }
     } = this.options
-    ctx.save()
+    ctx.save('rect')
     ctx.translate(0.5, 0.5)
     ctx.strokeStyle = color
     ctx.lineWidth = lineWidth * scale

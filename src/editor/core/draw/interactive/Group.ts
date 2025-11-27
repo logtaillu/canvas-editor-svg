@@ -5,6 +5,7 @@ import { IEditorOption } from '../../../interface/Editor'
 import { IElement, IElementFillRect } from '../../../interface/Element'
 import { IPositionContext } from '../../../interface/Position'
 import { IRange } from '../../../interface/Range'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { getUUID } from '../../../utils'
 import { RangeManager } from '../../range/RangeManager'
 import { Draw } from '../Draw'
@@ -171,7 +172,7 @@ export class Group {
     }
   }
 
-  public render(ctx: CanvasRenderingContext2D) {
+  public render(ctx: AbstractRender) {
     if (!this.fillRectMap.size) return
     // 当前激活组信息
     const range = this.range.getRange()
@@ -180,7 +181,7 @@ export class Group {
     const {
       group: { backgroundColor, opacity, activeOpacity, activeBackgroundColor }
     } = this.options
-    ctx.save()
+    ctx.save('rect')
     this.fillRectMap.forEach((fillRect, groupId) => {
       const { x, y, width, height } = fillRect
       if (anchorGroupIds?.includes(groupId)) {

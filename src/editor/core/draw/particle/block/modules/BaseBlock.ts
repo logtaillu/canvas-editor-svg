@@ -2,6 +2,7 @@ import { EDITOR_PREFIX } from '../../../../../dataset/constant/Editor'
 import { BlockType } from '../../../../../dataset/enum/Block'
 import { IEditorOption } from '../../../../../interface/Editor'
 import { IRowElement } from '../../../../../interface/Row'
+import { AbstractRender } from '../../../../../render/AbstractRender'
 import { Draw } from '../../../Draw'
 import { BlockParticle } from '../BlockParticle'
 import { IFrameBlock } from './IFrameBlock'
@@ -233,7 +234,7 @@ export class BaseBlock {
     evt.preventDefault()
   }
 
-  public snapshot(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  public snapshot(ctx: AbstractRender, x: number, y: number) {
     const block = this.element.block!
     if (block.type === BlockType.VIDEO) {
       this.blockItem.style.display = 'none'

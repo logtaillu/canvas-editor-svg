@@ -48,3 +48,8 @@ export enum RenderMode {
   SPEED = 'speed',
   COMPATIBILITY = 'compatibility'
 }
+
+export enum RenderType {
+  CANVAS = 'canvas',
+  SVG = 'svg'
+}

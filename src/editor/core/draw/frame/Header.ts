@@ -4,6 +4,7 @@ import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { IElement, IElementPosition } from '../../../interface/Element'
 import { IRow } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { pickSurroundElementList } from '../../../utils/element'
 import { Position } from '../../position/Position'
 import { Zone } from '../../zone/Zone'
@@ -126,8 +127,8 @@ export class Header {
     return extraHeight <= 0 ? 0 : extraHeight
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
-    ctx.save()
+  public render(ctx: AbstractRender, pageNo: number) {
+    ctx.save('g')
     ctx.globalAlpha = this.zone.isHeaderActive()
       ? 1
       : this.options.header.inactiveAlpha

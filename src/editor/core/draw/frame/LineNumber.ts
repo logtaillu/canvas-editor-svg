@@ -1,6 +1,7 @@
 import { LineNumberType } from '../../../dataset/enum/LineNumber'
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export class LineNumber {
@@ -12,7 +13,7 @@ export class LineNumber {
     this.options = draw.getOptions()
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public render(ctx: AbstractRender, pageNo: number) {
     const {
       scale,
       lineNumber: { color, size, font, right, type }
@@ -22,7 +23,7 @@ export class LineNumber {
     const positionList = this.draw.getPosition().getOriginalMainPositionList()
     const pageRowList = this.draw.getPageRowList()
     const rowList = pageRowList[pageNo]
-    ctx.save()
+    ctx.save('text')
     ctx.fillStyle = color
     ctx.font = `${size * scale}px ${font}`
     for (let i = 0; i < rowList.length; i++) {
@@ -31,7 +32,9 @@ export class LineNumber {
         coordinate: { leftBottom }
       } = positionList[row.startIndex]
       const seq = type === LineNumberType.PAGE ? i + 1 : row.rowIndex + 1
-      const textMetrics = textParticle.measureText(ctx, {
+      const context = ctx.getContext()
+      context.font = `${size * scale}px ${font}`
+      const textMetrics = textParticle.measureText(context, {
         value: `${seq}`
       })
       const x = margins[3] - (textMetrics.width + right) * scale

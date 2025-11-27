@@ -4,12 +4,13 @@ import { DeepRequired } from '../../../../interface/Common'
 import { IEditorOption } from '../../../../interface/Editor'
 import { ITd } from '../../../../interface/table/Td'
 import { ITr } from '../../../../interface/table/Tr'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { deepClone } from '../../../../utils'
 import { RangeManager } from '../../../range/RangeManager'
 import { Draw } from '../../Draw'
 
 interface IDrawTableBorderOption {
-  ctx: CanvasRenderingContext2D
+  ctx: AbstractRender
   startX: number
   startY: number
   width: number
@@ -114,10 +115,10 @@ export class TableParticle {
     const { scale } = this.options
     // 外部边框单独设置
     const lineWidth = ctx.lineWidth
+    ctx.beginPath()
     if (borderExternalWidth) {
       ctx.lineWidth = borderExternalWidth * scale
     }
-    ctx.beginPath()
     const x = Math.round(startX)
     const y = Math.round(startY)
     ctx.translate(0.5, 0.5)
@@ -133,17 +134,17 @@ export class TableParticle {
     if (borderExternalWidth) {
       ctx.lineWidth = lineWidth
     }
-    ctx.translate(-0.5, -0.5)
+    ctx.translateBack()
   }
 
   private _drawSlash(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     td: ITd,
     startX: number,
     startY: number
   ) {
     const { scale } = this.options
-    ctx.save()
+    ctx.save('path')
     const width = td.width! * scale
     const height = td.height! * scale
     const x = Math.round(td.x! * scale + startX)
@@ -163,7 +164,7 @@ export class TableParticle {
   }
 
   private _drawBorder(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IElement,
     startX: number,
     startY: number
@@ -189,7 +190,7 @@ export class TableParticle {
     const isExternalBorderType = borderType === TableBorder.EXTERNAL
     // 内边框
     const isInternalBorderType = borderType === TableBorder.INTERNAL
-    ctx.save()
+    ctx.save('g')
     // 虚线
     if (borderType === TableBorder.DASH) {
       ctx.setLineDash([3, 3])
@@ -304,14 +305,14 @@ export class TableParticle {
           }
           ctx.stroke()
         }
-        ctx.translate(-0.5, -0.5)
+        ctx.translateBack()
       }
     }
     ctx.restore()
   }
 
   private _drawBackgroundColor(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IElement,
     startX: number,
     startY: number
@@ -324,7 +325,7 @@ export class TableParticle {
       for (let d = 0; d < tr.tdList.length; d++) {
         const td = tr.tdList[d]
         if (!td.backgroundColor) continue
-        ctx.save()
+        ctx.save('rect')
         const width = td.width! * scale
         const height = td.height! * scale
         const x = Math.round(td.x! * scale + startX)
@@ -492,7 +493,7 @@ export class TableParticle {
   }
 
   public drawRange(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IElement,
     startX: number,
     startY: number
@@ -520,7 +521,7 @@ export class TableParticle {
     const endColIndex = endTd.colIndex! + (endTd.colspan - 1)
     const startRowIndex = startTd.rowIndex!
     const endRowIndex = endTd.rowIndex! + (endTd.rowspan - 1)
-    ctx.save()
+    ctx.save('rect')
     for (let t = 0; t < trList.length; t++) {
       const tr = trList[t]
       for (let d = 0; d < tr.tdList.length; d++) {
@@ -547,7 +548,7 @@ export class TableParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IElement,
     startX: number,
     startY: number

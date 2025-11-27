@@ -4,6 +4,7 @@ import {
 } from '../../../dataset/enum/Background'
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export class Background {
@@ -18,19 +19,19 @@ export class Background {
   }
 
   private _renderBackgroundColor(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     color: string,
     width: number,
     height: number
   ) {
-    ctx.save()
+    ctx.save('rect')
     ctx.fillStyle = color
     ctx.fillRect(0, 0, width, height)
     ctx.restore()
   }
 
   private _drawImage(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     imageElement: HTMLImageElement,
     width: number,
     height: number
@@ -74,7 +75,7 @@ export class Background {
   }
 
   private _renderBackgroundImage(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     width: number,
     height: number
   ) {
@@ -98,7 +99,7 @@ export class Background {
     }
   }
 
-  public render(ctx: CanvasRenderingContext2D, pageNo: number) {
+  public render(ctx: AbstractRender, pageNo: number) {
     const {
       background: { image, color, applyPageNumbers }
     } = this.options

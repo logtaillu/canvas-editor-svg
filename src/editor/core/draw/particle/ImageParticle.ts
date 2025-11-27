@@ -3,6 +3,7 @@ import { ImageDisplay } from '../../../dataset/enum/Common'
 import { ElementType } from '../../../dataset/enum/Element'
 import { IEditorOption } from '../../../interface/Editor'
 import { IElement } from '../../../interface/Element'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { convertStringToBase64 } from '../../../utils'
 import { Draw } from '../Draw'
 
@@ -118,7 +119,7 @@ export class ImageParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IElement,
     x: number,
     y: number

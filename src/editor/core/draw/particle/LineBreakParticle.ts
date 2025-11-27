@@ -1,6 +1,7 @@
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { IRowElement } from '../../../interface/Row'
+import { AbstractRender } from '../../../render/AbstractRender'
 import { Draw } from '../Draw'
 
 export class LineBreakParticle {
@@ -14,7 +15,7 @@ export class LineBreakParticle {
   }
 
   public render(
-    ctx: CanvasRenderingContext2D,
+    ctx: AbstractRender,
     element: IRowElement,
     x: number,
     y: number
@@ -23,14 +24,14 @@ export class LineBreakParticle {
       scale,
       lineBreak: { color, lineWidth }
     } = this.options
-    ctx.save()
-    ctx.beginPath()
+    ctx.save('g')
     // 换行符尺寸设置为9像素
     const top = y - (LineBreakParticle.HEIGHT * scale) / 2
     const left = x + element.metrics.width
     // 移动位置并设置缩放
     ctx.translate(left, top)
     ctx.scale(scale, scale)
+    ctx.beginPath()
     // 样式设置
     ctx.strokeStyle = color
     ctx.lineWidth = lineWidth

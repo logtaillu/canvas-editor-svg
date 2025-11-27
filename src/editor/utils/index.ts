@@ -81,7 +81,7 @@ export function isBody(node: Element): boolean {
 export function findParent(
   node: Element,
   filterFn: Function,
-  includeSelf: boolean
+  includeSelf = true
 ) {
   if (node && !isBody(node)) {
     node = includeSelf ? node : (node.parentNode as Element)

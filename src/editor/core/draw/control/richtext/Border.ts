@@ -1,6 +1,7 @@
 import { DeepRequired } from '../../../../interface/Common'
 import { IEditorOption } from '../../../../interface/Editor'
 import { IElementFillRect } from '../../../../interface/Element'
+import { AbstractRender } from '../../../../render/AbstractRender'
 import { Draw } from '../../Draw'
 
 export class ControlBorder {
@@ -32,14 +33,14 @@ export class ControlBorder {
     this.borderRect.width += width
   }
 
-  public render(ctx: CanvasRenderingContext2D) {
+  public render(ctx: AbstractRender) {
     if (!this.borderRect.width) return
     const {
       scale,
       control: { borderWidth, borderColor }
     } = this.options
     const { x, y, width, height } = this.borderRect
-    ctx.save()
+    ctx.save('g')
     ctx.translate(0, 1 * scale)
     ctx.lineWidth = borderWidth * scale
     ctx.strokeStyle = borderColor

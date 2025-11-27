@@ -49,7 +49,7 @@ export class ZoneTip {
       throttle((evt: MouseEvent) => {
         if (this.isDisableMouseMove || !this.draw.getIsPagingMode()) return
         if (!evt.offsetY) return
-        if (evt.target instanceof HTMLCanvasElement) {
+        if (evt.target instanceof SVGElement) {
           const mousemoveZone = this.zone.getZoneByY(evt.offsetY)
           if (!watchZones.includes(mousemoveZone)) {
             this._updateZoneTip(false)
