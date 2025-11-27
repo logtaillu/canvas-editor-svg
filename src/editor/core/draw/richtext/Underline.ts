@@ -69,6 +69,7 @@ export class Underline extends AbstractRichText {
     const FREQUENCY = 1 / scale // 频率
     const adjustY = startY + 2 * AMPLITUDE // 增加2倍振幅
     ctx.beginPath()
+    ctx.moveTo(startX, adjustY)
     for (let x = 0; x < width; x++) {
       const y = AMPLITUDE * Math.sin(FREQUENCY * x)
       ctx.lineTo(startX + x, adjustY + y)

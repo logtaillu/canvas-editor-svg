@@ -81,13 +81,13 @@ export default class SvgRender extends AbstractRender {
   emptyBlocks = 0
   // 创建新元素
   save(shape?: keyof SVGElementTagNameMap) {
-    if (this.currentElement !== this.element) {
-      // 推入栈
-      this.stack.push(this.currentElement)
-    }
     if (!shape) {
       this.emptyBlocks += 1
       return
+    }
+    if (this.currentElement !== this.element) {
+      // 推入栈
+      this.stack.push(this.currentElement)
     }
     this.currentElement = createSVGElement(shape)
     if (shape === 'path') {
