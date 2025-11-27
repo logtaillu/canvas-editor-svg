@@ -11,6 +11,7 @@ import {
 } from '.'
 import { IFrameBlock } from '../core/draw/particle/block/modules/IFrameBlock'
 import { LaTexParticle } from '../core/draw/particle/latex/LaTexParticle'
+import { MathjaxParticle } from '../core/draw/particle/mathjax/MathjaxParticle'
 import { NON_BREAKING_SPACE, ZERO } from '../dataset/constant/Common'
 import {
   AREA_CONTEXT_ATTR,
@@ -556,6 +557,12 @@ export function formatElementList(
     }
     if (el.type === ElementType.LATEX) {
       const { svg, width, height } = LaTexParticle.convertLaTextToSVG(el.value)
+      el.width = el.width || width
+      el.height = el.height || height
+      el.laTexSVG = svg
+      el.id = el.id || getUUID()
+    } else if (el.type === ElementType.MATHJAX) {
+      const { svg, width, height } = MathjaxParticle.convertLaTextToSVG(el.value)
       el.width = el.width || width
       el.height = el.height || height
       el.laTexSVG = svg
@@ -1305,9 +1312,8 @@ export function createDomFromElementList(
             } else if (srcdoc) {
               iframe.srcdoc = srcdoc
             }
-            iframe.width = `${
-              element.width || options?.width || window.innerWidth
-            }`
+            iframe.width = `${element.width || options?.width || window.innerWidth
+              }`
             iframe.height = `${element.height!}`
             clipboardDom.append(iframe)
           }
@@ -1347,7 +1353,7 @@ export function createDomFromElementList(
         clipboardDom.append(pageBreakElement)
       } else if (
         !element.type ||
-        element.type === ElementType.LATEX ||
+        element.type === ElementType.LATEX || element.type === ElementType.MATHJAX ||
         TEXTLIKE_ELEMENT_TYPE.includes(element.type)
       ) {
         let text = ''

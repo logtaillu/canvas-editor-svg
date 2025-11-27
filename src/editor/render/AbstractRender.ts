@@ -61,4 +61,5 @@ export abstract class AbstractRender {
   abstract getContext(): CanvasRenderingContext2D
   abstract rotate(angle: number): void
   abstract createPattern(canvas: HTMLCanvasElement, repeat: string, width: number, height: number): void
+  abstract html(html: string): void
 }

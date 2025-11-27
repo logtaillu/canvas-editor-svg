@@ -152,6 +152,13 @@ export class RangeManager {
       s => !s.type || TEXTLIKE_ELEMENT_TYPE.includes(s.type)
     )
   }
+  public getSizeableSelectionElementList(): IElement[] | null {
+    const selection = this.getSelectionElementList()
+    if (!selection) return null
+    return selection.filter(
+      s => !s.type || TEXTLIKE_ELEMENT_TYPE.includes(s.type) || s.type === ElementType.MATHJAX
+    )
+  }
 
   // 获取光标所选位置行信息
   public getRangeRow(): RangeRowMap | null {

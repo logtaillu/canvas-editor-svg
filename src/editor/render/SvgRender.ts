@@ -303,4 +303,7 @@ export default class SvgRender extends AbstractRender {
     this.currentElement.setAttribute('height', '100%')
     this.currentElement.setAttribute('fill', `url(#${patternId})`)
   }
+  html(html: string) {
+    this.currentElement.innerHTML = html
+  }
 }

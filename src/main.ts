@@ -1011,7 +1011,7 @@ window.onload = function () {
         if (!value) return
         instance.command.executeInsertElementList([
           {
-            type: ElementType.LATEX,
+            type: ElementType.MATHJAX,
             value
           }
         ])

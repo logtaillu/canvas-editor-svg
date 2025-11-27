@@ -142,4 +142,7 @@ export default class CanvasRender extends AbstractRender {
       this.ctx.fillRect(0, 0, width, height)
     }
   }
+  html() {
+    // do nothing
+  }
 }

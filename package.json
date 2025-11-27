@@ -65,6 +65,7 @@
     "vue": "^3.2.45"
   },
   "dependencies": {
+    "mathjax-full": "3",
     "morphdom": "^2.7.7",
     "prismjs": "^1.27.0"
   },

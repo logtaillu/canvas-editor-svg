@@ -407,7 +407,7 @@ export class CommandAdapt {
     // 选区设置或设置换行处样式
     let renderOption: IDrawOption = {}
     let changeElementList: IElement[] = []
-    const selection = this.range.getTextLikeSelectionElementList()
+    const selection = this.range.getSizeableSelectionElementList()
     if (selection?.length) {
       changeElementList = selection
       renderOption = { isSetCursor: false }
@@ -453,7 +453,7 @@ export class CommandAdapt {
       (this.draw.isReadonly() || this.draw.isDisabled())
     if (isDisabled) return
     const { defaultSize, maxSize } = this.options
-    const selection = this.range.getTextLikeSelectionElementList()
+    const selection = this.range.getSizeableSelectionElementList()
     // 选区设置或设置换行处样式
     let renderOption: IDrawOption = {}
     let changeElementList: IElement[] = []
@@ -507,7 +507,7 @@ export class CommandAdapt {
       (this.draw.isReadonly() || this.draw.isDisabled())
     if (isDisabled) return
     const { defaultSize, minSize } = this.options
-    const selection = this.range.getTextLikeSelectionElementList()
+    const selection = this.range.getSizeableSelectionElementList()
     // 选区设置或设置换行处样式
     let renderOption: IDrawOption = {}
     let changeElementList: IElement[] = []

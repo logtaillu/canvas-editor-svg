@@ -117,6 +117,8 @@ import { Badge } from './frame/Badge'
 import { AbstractRender } from '../../render/AbstractRender'
 import SVGRender from '../../render/SvgRender'
 import CanvasRender from '../../render/CanvasRender'
+import { MathjaxParticle } from './particle/mathjax/MathjaxParticle'
+import { MathJaxBaseFont } from './particle/mathjax/utils/MathjaxUtil'
 export class Draw {
   private container: HTMLDivElement
   private pageContainer: HTMLDivElement
@@ -151,6 +153,7 @@ export class Draw {
   private previewer: Previewer
   private imageParticle: ImageParticle
   private laTexParticle: LaTexParticle
+  private mathjaxParticle: MathjaxParticle
   private textParticle: TextParticle
   private tableParticle: TableParticle
   private tableTool: TableTool
@@ -231,6 +234,7 @@ export class Draw {
     this.previewer = new Previewer(this)
     this.imageParticle = new ImageParticle(this)
     this.laTexParticle = new LaTexParticle(this)
+    this.mathjaxParticle = new MathjaxParticle(this)
     this.textParticle = new TextParticle(this)
     this.tableParticle = new TableParticle(this)
     this.tableTool = new TableTool(this)
@@ -1719,6 +1723,10 @@ export class Draw {
         metrics.height = element.height! * scale
         metrics.boundingBoxDescent = metrics.height
         metrics.boundingBoxAscent = 0
+      } else if (element.type === ElementType.MATHJAX) {
+        const size = element.size || defaultSize
+        metrics.width = element.width! * scale * size / MathJaxBaseFont
+        metrics.height = element.height! * scale * size / MathJaxBaseFont
       } else {
         // 设置上下标真实字体尺寸
         const size = element.size || defaultSize
@@ -2161,6 +2169,9 @@ export class Draw {
         } else if (element.type === ElementType.LATEX) {
           this.textParticle.complete()
           this.laTexParticle.render(ctx, element, x, y + offsetY)
+        } else if (element.type === ElementType.MATHJAX) {
+          this.textParticle.complete()
+          this.mathjaxParticle.render(ctx, element, x, y + offsetY)
         } else if (element.type === ElementType.TABLE) {
           if (isCrossRowCol) {
             rangeRecord.x = x

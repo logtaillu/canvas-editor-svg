@@ -384,7 +384,7 @@ elementList.push(
     },
     {
       value: `{E_k} = hv - {W_0}`,
-      type: ElementType.LATEX
+      type: ElementType.MATHJAX
     },
     {
       value: '\n'
