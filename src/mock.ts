@@ -232,16 +232,16 @@ elementList.push({
   value: '',
   colgroup: [
     {
-      width: 180
+      width: 180 / 2
     },
     {
-      width: 80
+      width: 80 / 2
     },
     {
-      width: 130
+      width: 130 / 2
     },
     {
-      width: 130
+      width: 130 / 2
     }
   ],
   trList: [
@@ -487,7 +487,7 @@ export const commentList: IComment[] = [
 ]
 
 export const options: IEditorOption = {
-  margins: [100, 120, 100, 120],
+  margins: [100, 50, 100, 50],
   watermark: {
     data: 'CANVAS-EDITOR',
     size: 120
@@ -501,5 +501,9 @@ export const options: IEditorOption = {
   zone: {
     tipDisabled: false
   },
-  maskMargin: [60, 0, 30, 0] // 菜单栏高度60，底部工具栏30为遮盖层
+  maskMargin: [60, 0, 30, 0], // 菜单栏高度60，底部工具栏30为遮盖层
+  column: {
+    count: 2,
+    margins: [10, 10, 10, 10]
+  }
 }

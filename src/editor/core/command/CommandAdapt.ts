@@ -2130,7 +2130,7 @@ export class CommandAdapt {
 
   public setHTML(payload: Partial<IEditorHTML>) {
     const { header, main, footer } = payload
-    const innerWidth = this.draw.getOriginalInnerWidth()
+    const innerWidth = this.draw.getOriginalColumnInnerWidth()
     // 不设置值时数据为undefined，避免覆盖当前数据
     const getElementList = (htmlText?: string) =>
       htmlText !== undefined

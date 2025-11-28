@@ -230,7 +230,8 @@ export class TableOperate {
     const { defaultColMinWidth } = this.options.table
     const colgroup = element.colgroup!
     const colgroupWidth = colgroup.reduce((pre, cur) => pre + cur.width, 0)
-    const width = this.draw.getOriginalInnerWidth()
+    const width = this.draw.getOriginalColumnInnerWidth()
+
     if (colgroupWidth > width) {
       // 过滤大于最小宽度的列（可能减少宽度的列）
       const greaterMinWidthCol = colgroup.filter(

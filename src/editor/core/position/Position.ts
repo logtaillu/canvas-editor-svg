@@ -24,6 +24,7 @@ import { DeepRequired } from '../../interface/Common'
 import { EventBus } from '../event/eventbus/EventBus'
 import { EventBusMap } from '../../interface/EventBus'
 import { getIsBlockElement } from '../../utils/element'
+import { defaultColumnOptions } from '../../dataset/constant/Column'
 
 export class Position {
   private cursorPosition: IElementPosition | null
@@ -119,7 +120,8 @@ export class Position {
       startRowIndex,
       startIndex,
       innerWidth,
-      zone
+      zone,
+      column = defaultColumnOptions
     } = payload
     const {
       scale,
@@ -128,16 +130,25 @@ export class Position {
     let x = startX
     let y = startY
     let index = startIndex
+    const columnWidth = innerWidth / column.count
+    let columnRow = 0
     for (let i = 0; i < rowList.length; i++) {
       const curRow = rowList[i]
+      x = startX + columnWidth * curRow.columnIndex
+      if (i > 0 && curRow.columnIndex !== rowList[i - 1].columnIndex) {
+        y = startY
+        columnRow = 0
+      } else {
+        columnRow += 1
+      }
       // 行存在环绕的可能性均不设置行布局
       if (!curRow.isSurround) {
         // 计算行偏移量（行居中、居右）
         const curRowWidth = curRow.width + (curRow.offsetX || 0)
         if (curRow.rowFlex === RowFlex.CENTER) {
-          x += (innerWidth - curRowWidth) / 2
+          x += (columnWidth - curRowWidth) / 2
         } else if (curRow.rowFlex === RowFlex.RIGHT) {
-          x += innerWidth - curRowWidth
+          x += columnWidth - curRowWidth
         }
       }
       // 当前行X/Y轴偏移量
@@ -181,7 +192,8 @@ export class Position {
             leftBottom: [x, y + curRow.height],
             rightTop: [x + metrics.width, y],
             rightBottom: [x + metrics.width, y + curRow.height]
-          }
+          },
+          columnRowIndex: columnRow
         }
         // 缓存浮动元素信息
         if (
@@ -295,11 +307,12 @@ export class Position {
     const innerWidth = this.draw.getInnerWidth()
     const pageRowList = this.draw.getPageRowList()
     const margins = this.draw.getMargins()
-    const startX = margins[3]
+    const { margins: columnMargins } = this.options.column
+    const startX = margins[3] + columnMargins[3]
     // 起始位置受页眉影响
     const header = this.draw.getHeader()
     const extraHeight = header.getExtraHeight()
-    const startY = margins[0] + extraHeight
+    const startY = margins[0] + extraHeight + columnMargins[0]
     let startRowIndex = 0
     for (let i = 0; i < pageRowList.length; i++) {
       const rowList = pageRowList[i]
@@ -312,7 +325,8 @@ export class Position {
         startIndex,
         startX,
         startY,
-        innerWidth
+        innerWidth,
+        column: this.options.column
       })
       startRowIndex += rowList.length
     }
@@ -545,51 +559,58 @@ export class Position {
     }
     // 判断所属行是否存在元素
     const lastLetterList = positionList.filter(
-      p => p.isLastLetter && p.pageNo === positionNo
+      p => {
+        if (p.isLastLetter && p.pageNo === positionNo) {
+          const { coordinate: { leftTop, leftBottom } } = p
+          return y > leftTop[1] && y <= leftBottom[1]
+        }
+        return false
+      }
     )
+    // 多栏下是从左往右的
     for (let j = 0; j < lastLetterList.length; j++) {
       const {
         index,
         rowNo,
-        coordinate: { leftTop, leftBottom }
+        coordinate: { leftTop, rightTop }
       } = lastLetterList[j]
-      if (y > leftTop[1] && y <= leftBottom[1]) {
-        const headIndex = positionList.findIndex(
-          p => p.pageNo === positionNo && p.rowNo === rowNo
-        )
-        const headElement = elementList[headIndex]
-        const headPosition = positionList[headIndex]
-        // 是否在头部
-        const headStartX =
-          headElement.listStyle === ListStyle.CHECKBOX
-            ? this.draw.getMargins()[3]
-            : headPosition.coordinate.leftTop[0]
-        if (x < headStartX) {
-          // 头部元素为空元素时无需选中
-          if (~headIndex) {
-            if (headPosition.value === ZERO) {
-              curPositionIndex = headIndex
-            } else {
-              curPositionIndex = headIndex - 1
-              hitLineStartIndex = headIndex
-            }
-          } else {
-            curPositionIndex = index
-          }
-        } else {
-          // 是否是复选框列表
-          if (headElement.listStyle === ListStyle.CHECKBOX && x < leftTop[0]) {
-            return {
-              index: headIndex,
-              isDirectHit: true,
-              isCheckbox: true
-            }
-          }
-          curPositionIndex = index
-        }
-        isLastArea = true
+      if (j > 0 && x < rightTop[0]) {
         break
       }
+      const headIndex = positionList.findIndex(
+        p => p.pageNo === positionNo && p.rowNo === rowNo
+      )
+      const headElement = elementList[headIndex]
+      const headPosition = positionList[headIndex]
+      // 是否在头部
+      const headStartX =
+        headElement.listStyle === ListStyle.CHECKBOX
+          ? this.draw.getMargins()[3]
+          : headPosition.coordinate.leftTop[0]
+      if (x < headStartX) {
+        // 头部元素为空元素时无需选中
+        if (~headIndex) {
+          if (headPosition.value === ZERO) {
+            curPositionIndex = headIndex
+          } else {
+            curPositionIndex = headIndex - 1
+            hitLineStartIndex = headIndex
+          }
+        } else {
+          curPositionIndex = index
+        }
+      } else {
+        // 是否是复选框列表
+        if (headElement.listStyle === ListStyle.CHECKBOX && x < leftTop[0]) {
+          return {
+            index: headIndex,
+            isDirectHit: true,
+            isCheckbox: true
+          }
+        }
+        curPositionIndex = index
+      }
+      isLastArea = true
     }
     if (!isLastArea) {
       // 页眉底部距离页面顶部距离

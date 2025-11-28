@@ -279,6 +279,7 @@ export default class SvgRender extends AbstractRender {
     return ctx
   }
   createPattern(canvas: HTMLCanvasElement): void {
+    this.begin('defs')
     this.begin('pattern')
     const pattern = this.currentElement
     const patternWidth = canvas.width
@@ -302,6 +303,7 @@ export default class SvgRender extends AbstractRender {
     this.currentElement.setAttribute('width', '100%')
     this.currentElement.setAttribute('height', '100%')
     this.currentElement.setAttribute('fill', `url(#${patternId})`)
+    this.end() // end rect
   }
   html(html: string) {
     this.currentElement.innerHTML = html

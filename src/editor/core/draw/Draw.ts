@@ -119,6 +119,8 @@ import SVGRender from '../../render/SvgRender'
 import CanvasRender from '../../render/CanvasRender'
 import { MathjaxParticle } from './particle/mathjax/MathjaxParticle'
 import { MathJaxBaseFont } from './particle/mathjax/utils/MathjaxUtil'
+import { defaultColumnOptions } from '../../dataset/constant/Column'
+import { IColumnOption } from '../../interface/Column'
 export class Draw {
   private container: HTMLDivElement
   private pageContainer: HTMLDivElement
@@ -447,10 +449,20 @@ export class Draw {
     return width - margins[1] - margins[3]
   }
 
+  public getColumnInnerWidth(column?: DeepRequired<IColumnOption>): number {
+    const { count, margins } = column || this.options.column
+    return this.getInnerWidth() / count - (margins[1] + margins[3]) * this.options.scale
+  }
+
   public getOriginalInnerWidth(): number {
     const width = this.getOriginalWidth()
     const margins = this.getOriginalMargins()
     return width - margins[1] - margins[3]
+  }
+
+  public getOriginalColumnInnerWidth(): number {
+    const { count, margins } = this.options.column
+    return this.getInnerWidth() / count - margins[1] - margins[3]
   }
 
   public getContextInnerWidth(): number {
@@ -462,7 +474,7 @@ export class Draw {
       const tdPadding = this.getTdPadding()
       return td!.width! - tdPadding[1] - tdPadding[3]
     }
-    return this.getOriginalInnerWidth()
+    return this.getOriginalColumnInnerWidth()
   }
 
   public getMargins(): IMargin {
@@ -1333,11 +1345,12 @@ export class Draw {
       elementList,
       isPagingMode = false,
       isFromTable = false,
+      pageHeight = 0,
       startX = 0,
       startY = 0,
-      pageHeight = 0,
       mainOuterHeight = 0,
-      surroundElementList = []
+      surroundElementList = [],
+      column = defaultColumnOptions
     } = payload
     const {
       defaultSize,
@@ -1352,6 +1365,9 @@ export class Draw {
     // 计算列表偏移宽度
     const listStyleMap = this.listParticle.computeListStyle(ctx, elementList)
     const rowList: IRow[] = []
+    // 使用栏数调整实际宽度
+    const { margins, count } = column
+    const columnWidth = (innerWidth / count) - (margins[1] + margins[3])
     if (elementList.length) {
       rowList.push({
         width: 0,
@@ -1360,7 +1376,8 @@ export class Draw {
         elementList: [],
         startIndex: 0,
         rowIndex: 0,
-        rowFlex: elementList?.[0]?.rowFlex || elementList?.[1]?.rowFlex
+        rowFlex: elementList?.[0]?.rowFlex || elementList?.[1]?.rowFlex,
+        columnIndex: 0
       })
     }
     // 起始位置及页码计算
@@ -1388,7 +1405,7 @@ export class Draw {
         curRow.offsetX ||
         (element.listId && listStyleMap.get(element.listId)) ||
         0
-      const availableWidth = innerWidth - offsetX
+      const availableWidth = columnWidth - offsetX
       // 增加起始位置坐标偏移量
       const isStartElement = curRow.elementList.length === 1
       x += isStartElement ? offsetX : 0
@@ -1479,7 +1496,8 @@ export class Draw {
               innerWidth: (td.width! - tdPaddingWidth) * scale,
               elementList: td.value,
               isFromTable: true,
-              isPagingMode
+              isPagingMode,
+              column
             })
             const rowHeight = rowList.reduce((pre, cur) => pre + cur.height, 0)
             td.rowList = rowList
@@ -1876,7 +1894,8 @@ export class Draw {
           ascent,
           rowIndex: curRow.rowIndex + 1,
           rowFlex: elementList[i]?.rowFlex || elementList[i + 1]?.rowFlex,
-          isPageBreak: element.type === ElementType.PAGE_BREAK
+          isPageBreak: element.type === ElementType.PAGE_BREAK,
+          columnIndex: 0
         }
         // 控件缩进
         if (
@@ -1892,7 +1911,7 @@ export class Draw {
           if (~preStartIndex) {
             const preRowPositionList = this.position.computeRowPosition({
               row: curRow,
-              innerWidth: this.getInnerWidth()
+              innerWidth: this.getColumnInnerWidth(column)
             })
             const valueStartPosition = preRowPositionList[preStartIndex]
             if (valueStartPosition) {
@@ -2007,17 +2026,18 @@ export class Draw {
     const pageRowList: IRow[][] = [[]]
     const {
       pageMode,
-      pageNumber: { maxPageNo }
+      pageNumber: { maxPageNo },
+      column: { count, margins }
     } = this.options
     const height = this.getHeight()
     const marginHeight = this.getMainOuterHeight()
-    let pageHeight = marginHeight
+    let pageHeight = marginHeight + margins[0] + margins[2]
     let pageNo = 0
     if (pageMode === PageMode.CONTINUITY) {
       pageRowList[0] = this.rowList
       // 重置高度
       pageHeight += this.rowList.reduce(
-        (pre, cur) => pre + cur.height + (cur.offsetY || 0),
+        (pre, cur) => cur.columnIndex === 0 ? pre + cur.height + (cur.offsetY || 0) : pre,
         0
       )
       const dpr = this.getPagePixelRatio()
@@ -2033,6 +2053,7 @@ export class Draw {
       }
       this._initPageContext(this.pageList[0].ctx)
     } else {
+      let columnIndex = 0
       for (let i = 0; i < this.rowList.length; i++) {
         const row = this.rowList[i]
         const rowOffsetY = row.offsetY || 0
@@ -2040,15 +2061,23 @@ export class Draw {
           row.height + rowOffsetY + pageHeight > height ||
           this.rowList[i - 1]?.isPageBreak
         ) {
-          if (Number.isInteger(maxPageNo) && pageNo >= maxPageNo!) {
-            this.elementList = this.elementList.slice(0, row.startIndex)
-            break
+          columnIndex = this.rowList[i - 1]?.isPageBreak ? 0 : (columnIndex + 1) % count
+          row.columnIndex = columnIndex
+          if (columnIndex === 0) {
+            if (Number.isInteger(maxPageNo) && pageNo >= maxPageNo!) {
+              this.elementList = this.elementList.slice(0, row.startIndex)
+              break
+            }
+            pageHeight = marginHeight + margins[0] + margins[2] + row.height + rowOffsetY
+            pageRowList.push([row])
+            pageNo++
+          } else {
+            pageHeight = marginHeight + margins[0] + margins[2] + row.height + rowOffsetY
+            pageRowList[pageNo].push(row)
           }
-          pageHeight = marginHeight + row.height + rowOffsetY
-          pageRowList.push([row])
-          pageNo++
         } else {
           pageHeight += row.height + rowOffsetY
+          row.columnIndex = columnIndex
           pageRowList[pageNo].push(row)
         }
       }
@@ -2500,6 +2529,23 @@ export class Draw {
     this.blockParticle.clear()
   }
 
+  private _drawColumnLines(page: AbstractRender) {
+    page.save('g')
+    const { count, color } = this.options.column
+    const margins = this.getMargins()
+    const headerExtraHeight = this.header.getExtraHeight()
+    const topOffset = headerExtraHeight + margins[0]
+    for (let i = 1; i < count; i++) {
+      page.beginPath()
+      const columnWidth = this.getInnerWidth() / count
+      page.strokeStyle = color
+      page.moveTo(columnWidth * i + margins[3] - 0.5, topOffset)
+      page.lineTo(columnWidth * i + margins[3] - 0.5, topOffset + this.getMainHeight())
+      page.stroke()
+    }
+    page.restore()
+  }
+
   private _drawPage(payload: IDrawPagePayload) {
     const { elementList, positionList, rowList, pageNo } = payload
     const {
@@ -2546,6 +2592,8 @@ export class Draw {
     if (!isPrintMode) {
       this.control.renderHighlightList(page, pageNo)
     }
+    // 绘制分隔线
+    this._drawColumnLines(page)
     // 渲染元素
     const index = rowList[0]?.startIndex
     this.drawRow(page, {
@@ -2684,7 +2732,8 @@ export class Draw {
         isPagingMode,
         innerWidth,
         surroundElementList,
-        elementList: this.elementList
+        elementList: this.elementList,
+        column: this.options.column
       })
       // 页面信息
       this.pageRowList = this._computePageList()

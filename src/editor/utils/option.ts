@@ -50,6 +50,7 @@ import {
 import { defaultBadgeOption } from '../dataset/constant/Badge'
 import { IBadgeOption } from '../interface/Badge'
 import { defaultModeRuleOption } from '../dataset/constant/Editor'
+import { defaultColumnOptions } from '../dataset/constant/Column'
 
 export function mergeOption(
   options: IEditorOption = {}
@@ -216,6 +217,10 @@ export function mergeOption(
     pageBorder: pageBorderOptions,
     badge: badgeOptions,
     modeRule: modeRuleOption,
-    renderType: RenderType.SVG
+    renderType: RenderType.SVG,
+    column: {
+      ...defaultColumnOptions,
+      ...options.column || {}
+    }
   }
 }

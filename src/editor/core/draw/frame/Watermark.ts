@@ -25,8 +25,9 @@ export class Watermark {
     const width = this.draw.getWidth()
     const height = this.draw.getHeight()
     // 开始绘制
-    ctx.save(repeat ? 'defs' : 'text')
+    ctx.save(repeat ? 'g' : 'text')
     ctx.globalAlpha = opacity
+    ctx.style.userSelect = 'none'
     ctx.font = `${size * scale}px ${font}`
     // 格式化文本
     let text = data
@@ -123,7 +124,8 @@ export class Watermark {
     const imageWidth = width * scale
     const imageHeight = height * scale
     // 开始绘制
-    ctx.save(repeat ? 'defs' : 'image')
+    ctx.save(repeat ? 'g' : 'image')
+    ctx.style.userSelect = 'none'
     ctx.globalAlpha = opacity
     if (repeat) {
       const dpr = this.draw.getPagePixelRatio()

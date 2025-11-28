@@ -68,7 +68,7 @@ export function pasteHTML(host: CanvasEvent, htmlText: string) {
   const draw = host.getDraw()
   if (draw.isReadonly() || draw.isDisabled()) return
   const elementList = getElementListByHTML(htmlText, {
-    innerWidth: draw.getOriginalInnerWidth()
+    innerWidth: draw.getOriginalColumnInnerWidth()
   })
   pasteElement(host, elementList)
 }

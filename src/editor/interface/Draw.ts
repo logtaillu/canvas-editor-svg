@@ -1,5 +1,6 @@
 import { ImageDisplay } from '../dataset/enum/Common'
 import { EditorMode, EditorZone } from '../dataset/enum/Editor'
+import { IColumnOption } from './Column'
 import { IElement, IElementPosition } from './Element'
 import { IRow } from './Row'
 
@@ -82,4 +83,5 @@ export interface IComputeRowListPayload {
   pageHeight?: number
   mainOuterHeight?: number
   surroundElementList?: IElement[]
+  column?: Readonly<Required<IColumnOption>>
 }

@@ -30,13 +30,13 @@ import { IBadgeOption } from './Badge'
 import { IElement } from './Element'
 import { LocationPosition } from '../dataset/enum/Common'
 import { IRange } from './Range'
+import { IColumnOption } from './Column'
 
 export interface IEditorData {
   header?: IElement[]
   main: IElement[]
   footer?: IElement[]
 }
-
 export interface IEditorOption {
   mode?: EditorMode
   locale?: string
@@ -104,6 +104,7 @@ export interface IEditorOption {
   badge?: IBadgeOption
   modeRule?: IModeRule
   renderType?: RenderType
+  column?: IColumnOption // 分栏配置
 }
 
 export interface IEditorResult {

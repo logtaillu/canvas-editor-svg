@@ -1,5 +1,6 @@
 import { ImageDisplay } from '../dataset/enum/Common'
 import { EditorZone } from '../dataset/enum/Editor'
+import { IColumnOption } from './Column'
 import { IElement, IElementFillRect, IElementPosition } from './Element'
 import { IRange } from './Range'
 import { IRow, IRowElement } from './Row'
@@ -75,6 +76,7 @@ export interface IComputePageRowPositionPayload {
   trIndex?: number
   tdValueIndex?: number
   zone?: EditorZone
+  column?: Readonly<Required<IColumnOption>>
 }
 
 export interface IComputePageRowPositionResult {

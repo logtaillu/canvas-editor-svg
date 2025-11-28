@@ -467,7 +467,7 @@ export class TableTool {
               isChangeSize = true
             } else {
               // 宽度分配
-              const innerWidth = this.draw.getInnerWidth()
+              const innerWidth = this.draw.getColumnInnerWidth()
               const curColWidth = colgroup[index].width
               // 最小移动距离计算-如果向左移动：使单元格小于最小宽度，则减少移动量
               if (dx < 0 && curColWidth + dx < this.MIN_TD_WIDTH) {

@@ -20,7 +20,6 @@ export class MathjaxParticle {
     y: number
   ) {
     const { scale, defaultSize } = this.options
-    console.log(element.size, this.options)
     ctx.save('g')
     const { svg, align, height } = renderLatexToSvg(element.value)
 
