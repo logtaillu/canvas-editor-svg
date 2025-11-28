@@ -46,7 +46,9 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "postinstall": "simple-git-hooks",
-    "release": "node scripts/release.js"
+    "release": "node scripts/release.js",
+    "deploy": "gh-pages -d dist",
+    "page": "npm run build && npm run deploy"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^10.0.1",
@@ -65,6 +67,7 @@
     "vue": "^3.2.45"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "mathjax-full": "3",
     "morphdom": "^2.7.7",
     "prismjs": "^1.27.0"
