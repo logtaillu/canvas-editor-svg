@@ -4,7 +4,7 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import * as path from 'path'
 
 export default defineConfig(({ mode }) => {
-  const name = 'canvas-editor'
+  const name = 'canvas-editor-svg'
   if (mode === 'lib') {
     return {
       plugins: [
