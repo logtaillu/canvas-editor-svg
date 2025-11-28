@@ -2033,13 +2033,43 @@ export class Draw {
     const marginHeight = this.getMainOuterHeight()
     let pageHeight = marginHeight + margins[0] + margins[2]
     let pageNo = 0
+    let columnIndex = 0
+    for (let i = 0; i < this.rowList.length; i++) {
+      const row = this.rowList[i]
+      const rowOffsetY = row.offsetY || 0
+      if (
+        row.height + rowOffsetY + pageHeight > height ||
+        this.rowList[i - 1]?.isPageBreak
+      ) {
+        columnIndex = this.rowList[i - 1]?.isPageBreak ? 0 : (columnIndex + 1) % count
+        row.columnIndex = columnIndex
+        if (columnIndex === 0) {
+          if (Number.isInteger(maxPageNo) && pageNo >= maxPageNo!) {
+            this.elementList = this.elementList.slice(0, row.startIndex)
+            break
+          }
+          pageHeight = marginHeight + margins[0] + margins[2] + row.height + rowOffsetY
+          pageRowList.push([row])
+          pageNo++
+        } else {
+          pageHeight = marginHeight + margins[0] + margins[2] + row.height + rowOffsetY
+          pageRowList[pageNo].push(row)
+        }
+      } else {
+        pageHeight += row.height + rowOffsetY
+        row.columnIndex = columnIndex
+        pageRowList[pageNo].push(row)
+      }
+    }
     if (pageMode === PageMode.CONTINUITY) {
-      pageRowList[0] = this.rowList
-      // 重置高度
-      pageHeight += this.rowList.reduce(
-        (pre, cur) => cur.columnIndex === 0 ? pre + cur.height + (cur.offsetY || 0) : pre,
-        0
-      )
+      pageHeight = pageRowList.reduce((pre, cur) => {
+        const sum : number[] = []
+        cur.forEach((row) => {
+          sum[row.columnIndex] = (sum[row.columnIndex] || 0) + row.height + (row.offsetY || 0)
+        })
+        return pre + Math.max(...sum)
+      }, 0) + marginHeight + margins[0] + margins[2]
+      // 连页模式
       const dpr = this.getPagePixelRatio()
       const pageDom = this.pageList[0]
       const pageDomHeight = Number(pageDom.style.height.replace('px', ''))
@@ -2052,35 +2082,8 @@ export class Draw {
         pageDom.height = reduceHeight * dpr
       }
       this._initPageContext(this.pageList[0].ctx)
-    } else {
-      let columnIndex = 0
-      for (let i = 0; i < this.rowList.length; i++) {
-        const row = this.rowList[i]
-        const rowOffsetY = row.offsetY || 0
-        if (
-          row.height + rowOffsetY + pageHeight > height ||
-          this.rowList[i - 1]?.isPageBreak
-        ) {
-          columnIndex = this.rowList[i - 1]?.isPageBreak ? 0 : (columnIndex + 1) % count
-          row.columnIndex = columnIndex
-          if (columnIndex === 0) {
-            if (Number.isInteger(maxPageNo) && pageNo >= maxPageNo!) {
-              this.elementList = this.elementList.slice(0, row.startIndex)
-              break
-            }
-            pageHeight = marginHeight + margins[0] + margins[2] + row.height + rowOffsetY
-            pageRowList.push([row])
-            pageNo++
-          } else {
-            pageHeight = marginHeight + margins[0] + margins[2] + row.height + rowOffsetY
-            pageRowList[pageNo].push(row)
-          }
-        } else {
-          pageHeight += row.height + rowOffsetY
-          row.columnIndex = columnIndex
-          pageRowList[pageNo].push(row)
-        }
-      }
+      // 多页合并在一起
+      return [pageRowList.flat()]
     }
     return pageRowList
   }
@@ -2540,7 +2543,8 @@ export class Draw {
       const columnWidth = this.getInnerWidth() / count
       page.strokeStyle = color
       page.moveTo(columnWidth * i + margins[3] - 0.5, topOffset)
-      page.lineTo(columnWidth * i + margins[3] - 0.5, topOffset + this.getMainHeight())
+      const mainHeight = (this.options.pageMode === PageMode.CONTINUITY ? this.getCanvasHeight(0) / this.getPagePixelRatio() : this.getHeight()) - this.getMainOuterHeight()
+      page.lineTo(columnWidth * i + margins[3] - 0.5, topOffset + mainHeight)
       page.stroke()
     }
     page.restore()

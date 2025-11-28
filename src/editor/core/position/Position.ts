@@ -17,7 +17,7 @@ import {
   IPositionContext
 } from '../../interface/Position'
 import { Draw } from '../draw/Draw'
-import { EditorMode, EditorZone } from '../../dataset/enum/Editor'
+import { EditorMode, EditorZone, PageMode } from '../../dataset/enum/Editor'
 import { deepClone, isRectIntersect } from '../../utils'
 import { ImageDisplay } from '../../dataset/enum/Common'
 import { DeepRequired } from '../../interface/Common'
@@ -133,12 +133,18 @@ export class Position {
     const columnWidth = innerWidth / column.count
     const columnInnerWidth = columnWidth - column.margins[3] - column.margins[1]
     let columnRow = 0
+    // 当前页的startY
+    let pageStartY = startY
+    let maxY = startY
     for (let i = 0; i < rowList.length; i++) {
       const curRow = rowList[i]
-      console.log(startX)
       x = startX + columnWidth * curRow.columnIndex
       if (i > 0 && curRow.columnIndex !== rowList[i - 1].columnIndex) {
-        y = startY
+        if (curRow.columnIndex === 0) {
+          // 换页
+          pageStartY = maxY
+        }
+        y = pageStartY
         columnRow = 0
       } else {
         columnRow += 1
@@ -298,6 +304,10 @@ export class Position {
       }
       x = startX
       y += curRow.height
+      if (this.options.pageMode === PageMode.CONTINUITY) {
+        // 连页模式
+        maxY = Math.max(maxY, y)
+      }
     }
     return { x, y, index }
   }
