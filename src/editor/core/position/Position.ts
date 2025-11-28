@@ -131,9 +131,11 @@ export class Position {
     let y = startY
     let index = startIndex
     const columnWidth = innerWidth / column.count
+    const columnInnerWidth = columnWidth - column.margins[3] - column.margins[1]
     let columnRow = 0
     for (let i = 0; i < rowList.length; i++) {
       const curRow = rowList[i]
+      console.log(startX)
       x = startX + columnWidth * curRow.columnIndex
       if (i > 0 && curRow.columnIndex !== rowList[i - 1].columnIndex) {
         y = startY
@@ -146,9 +148,9 @@ export class Position {
         // 计算行偏移量（行居中、居右）
         const curRowWidth = curRow.width + (curRow.offsetX || 0)
         if (curRow.rowFlex === RowFlex.CENTER) {
-          x += (columnWidth - curRowWidth) / 2
+          x += (columnInnerWidth - curRowWidth) / 2
         } else if (curRow.rowFlex === RowFlex.RIGHT) {
-          x += columnWidth - curRowWidth
+          x += columnInnerWidth - curRowWidth
         }
       }
       // 当前行X/Y轴偏移量
