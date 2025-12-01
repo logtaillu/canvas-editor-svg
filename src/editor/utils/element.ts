@@ -567,6 +567,8 @@ export function formatElementList(
       el.height = el.height || height
       el.laTexSVG = svg
       el.id = el.id || getUUID()
+    } else if (el.type === ElementType.HTML) {
+      el.id = el.id || getUUID()
     }
     i++
   }

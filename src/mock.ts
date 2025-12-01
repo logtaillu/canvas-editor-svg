@@ -466,6 +466,14 @@ elementList.push(
   ]
 )
 
+elementList.push({
+  type: ElementType.HTML,
+  value: `<div style="text-align: center;">
+  <p>12345</p>
+  <p>23456</p>
+  </div>`
+})
+
 export const data: IElement[] = elementList
 
 interface IComment {

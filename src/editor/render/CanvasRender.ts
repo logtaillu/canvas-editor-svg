@@ -145,4 +145,7 @@ export default class CanvasRender extends AbstractRender {
   html() {
     // do nothing
   }
+  get current() {
+    return this.element
+  }
 }

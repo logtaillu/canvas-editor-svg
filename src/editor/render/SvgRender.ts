@@ -24,6 +24,9 @@ export default class SvgRender extends AbstractRender {
     this.element = svg
     this.currentElement = svg
   }
+  get current() {
+    return this.currentElement
+  }
   get width() {
     return Number(this.element.getAttribute('width'))
   }

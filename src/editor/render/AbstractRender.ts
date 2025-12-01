@@ -62,4 +62,5 @@ export abstract class AbstractRender {
   abstract rotate(angle: number): void
   abstract createPattern(canvas: HTMLCanvasElement, repeat: string, width: number, height: number): void
   abstract html(html: string): void
+  abstract get current(): SVGElement | HTMLCanvasElement
 }

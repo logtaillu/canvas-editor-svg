@@ -17,5 +17,6 @@ export enum ElementType {
   BLOCK = 'block',
   TITLE = 'title',
   LIST = 'list',
-  MATHJAX = 'mathjax'
+  MATHJAX = 'mathjax',
+  HTML = 'html'
 }

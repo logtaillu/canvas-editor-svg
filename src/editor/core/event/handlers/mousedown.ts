@@ -88,6 +88,9 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
     }
   }
   const target = draw.getOptions().renderType === RenderType.CANVAS ? evt.target as HTMLDivElement : <SVGElement>findParent(<SVGElement>evt.target, (node: Node) => node.nodeName === 'svg')
+  if (!target) {
+    return
+  }
   const pageIndex = target.dataset.index
   // 设置pageNo
   if (pageIndex) {

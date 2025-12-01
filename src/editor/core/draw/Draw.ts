@@ -121,6 +121,8 @@ import { MathjaxParticle } from './particle/mathjax/MathjaxParticle'
 import { MathJaxBaseFont } from './particle/mathjax/utils/MathjaxUtil'
 import { defaultColumnOptions } from '../../dataset/constant/Column'
 import { IColumnOption } from '../../interface/Column'
+import { HtmlParticle } from './particle/HtmlParticle'
+import { HtmlResizeObserver } from '../observer/HtmlResizeObserver'
 export class Draw {
   private container: HTMLDivElement
   private pageContainer: HTMLDivElement
@@ -156,6 +158,7 @@ export class Draw {
   private imageParticle: ImageParticle
   private laTexParticle: LaTexParticle
   private mathjaxParticle: MathjaxParticle
+  private htmlParticle: HtmlParticle
   private textParticle: TextParticle
   private tableParticle: TableParticle
   private tableTool: TableTool
@@ -183,6 +186,7 @@ export class Draw {
   private scrollObserver: ScrollObserver
   private selectionObserver: SelectionObserver
   private imageObserver: ImageObserver
+  private htmlResizeObserver: HtmlResizeObserver
 
   private LETTER_REG: RegExp
   private WORD_LIKE_REG: RegExp
@@ -237,6 +241,7 @@ export class Draw {
     this.imageParticle = new ImageParticle(this)
     this.laTexParticle = new LaTexParticle(this)
     this.mathjaxParticle = new MathjaxParticle(this)
+    this.htmlParticle = new HtmlParticle(this)
     this.textParticle = new TextParticle(this)
     this.tableParticle = new TableParticle(this)
     this.tableTool = new TableTool(this)
@@ -264,6 +269,7 @@ export class Draw {
     this.scrollObserver = new ScrollObserver(this)
     this.selectionObserver = new SelectionObserver(this)
     this.imageObserver = new ImageObserver()
+    this.htmlResizeObserver = new HtmlResizeObserver(this)
     new MouseObserver(this)
 
     this.canvasEvent = new CanvasEvent(this)
@@ -950,6 +956,10 @@ export class Draw {
     return this.imageObserver
   }
 
+  public getHtmlResizeObserver(): HtmlResizeObserver {
+    return this.htmlResizeObserver
+  }
+
   public getI18n(): I18n {
     return this.i18n
   }
@@ -1367,7 +1377,7 @@ export class Draw {
     const rowList: IRow[] = []
     // 使用栏数调整实际宽度
     const { margins, count } = column
-    const columnWidth = (innerWidth / count) - (margins[1] + margins[3])
+    const columnWidth = (innerWidth / count) - (margins[1] + margins[3]) * this.options.scale
     if (elementList.length) {
       rowList.push({
         width: 0,
@@ -1704,6 +1714,13 @@ export class Draw {
         metrics.height = lineWidth * scale
         metrics.boundingBoxAscent = -rowMargin
         metrics.boundingBoxDescent = -rowMargin + metrics.height
+      } else if (element.type === ElementType.HTML) {
+        element.width = availableWidth / scale
+        metrics.width = availableWidth
+        element.height = element.height || defaultSize
+        metrics.height = element.height * scale
+        metrics.boundingBoxAscent = metrics.height - rowMargin
+        metrics.boundingBoxDescent = -rowMargin
       } else if (element.type === ElementType.PAGE_BREAK) {
         element.width = availableWidth / scale
         metrics.width = availableWidth
@@ -2204,6 +2221,9 @@ export class Draw {
         } else if (element.type === ElementType.MATHJAX) {
           this.textParticle.complete()
           this.mathjaxParticle.render(ctx, element, x, y + offsetY)
+        } else if (element.type === ElementType.HTML) {
+          this.textParticle.complete()
+          this.htmlParticle.render(ctx, element, x, y)
         } else if (element.type === ElementType.TABLE) {
           if (isCrossRowCol) {
             rangeRecord.x = x
@@ -2668,6 +2688,7 @@ export class Draw {
             rowList: this.pageRowList[index],
             pageNo: index
           })
+          this._resizeObserve()
         }
       })
     })
@@ -2687,6 +2708,12 @@ export class Draw {
         pageNo: i
       })
     }
+    this._resizeObserve()
+  }
+
+  private _resizeObserve() {
+    const htmlElements = this.elementList.filter(element => element.type === ElementType.HTML)
+    this.htmlResizeObserver.observe(htmlElements)
   }
 
   public render(payload?: IDrawOption) {

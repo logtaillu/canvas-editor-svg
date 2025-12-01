@@ -29,7 +29,8 @@ enum ElementType {
   TITLE = 'title',
   AREA = 'area',
   LIST = 'list',
-  MATHJAX = 'mathjax'
+  MATHJAX = 'mathjax',
+  HTML = 'html'
 }
 
 enum TitleLevel {
