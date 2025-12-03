@@ -124,6 +124,7 @@ import { IColumnOption } from '../../interface/Column'
 import { HtmlParticle } from './particle/HtmlParticle'
 import { HtmlResizeObserver } from '../observer/HtmlResizeObserver'
 export class Draw {
+  private rootContainer: HTMLElement
   private container: HTMLDivElement
   private pageContainer: HTMLDivElement
   private pageList: AbstractRender[]
@@ -207,6 +208,7 @@ export class Draw {
     eventBus: EventBus<EventBusMap>,
     override: Override
   ) {
+    this.rootContainer = rootContainer
     this.container = this._wrapContainer(rootContainer)
     this.pageList = []
     this.pageNo = 0
@@ -528,6 +530,10 @@ export class Draw {
       scale
     } = this.options
     return <IPadding>tdPadding.map(m => m * scale)
+  }
+
+  public getRootContainer(): HTMLElement {
+    return this.rootContainer
   }
 
   public getContainer(): HTMLDivElement {

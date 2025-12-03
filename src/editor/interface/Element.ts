@@ -120,6 +120,10 @@ export interface ILaTexElement {
   laTexSVG?: string
 }
 
+export interface IHtmlElement {
+  element?: HTMLElement
+}
+
 export interface IDateElement {
   dateFormat?: string
   dateId?: string
@@ -168,7 +172,8 @@ export type IElement = IElementBasic &
   IBlockElement &
   ITitleElement &
   IListElement &
-  IAreaElement
+  IAreaElement &
+  IHtmlElement
 
 export interface IElementMetrics {
   width: number

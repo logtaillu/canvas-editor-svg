@@ -148,4 +148,7 @@ export default class CanvasRender extends AbstractRender {
   get current() {
     return this.element
   }
+  addTempNode(): void {
+    // empty
+  }
 }

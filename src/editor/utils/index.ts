@@ -39,7 +39,7 @@ export function throttle<T extends unknown[]>(
 }
 
 export function deepCloneOmitKeys<T, K>(obj: T, omitKeys: (keyof K)[]): T {
-  if (!obj || typeof obj !== 'object') {
+  if (!obj || typeof obj !== 'object' || obj instanceof HTMLElement) {
     return obj
   }
   let newObj: any = {}
@@ -56,9 +56,12 @@ export function deepCloneOmitKeys<T, K>(obj: T, omitKeys: (keyof K)[]): T {
 }
 
 export function deepClone<T>(obj: T): T {
-  if (typeof structuredClone === 'function') {
-    return structuredClone(obj)
+  if (obj instanceof HTMLElement) {
+    return obj
   }
+  // if (typeof structuredClone === 'function') {
+  //   return structuredClone(obj)
+  // }
   if (!obj || typeof obj !== 'object') {
     return obj
   }

@@ -11,6 +11,7 @@ export default class SvgRender extends AbstractRender {
   pathCtx: CanvasPath2SvgPath | null = null
   // 缓存旧元素
   oldElement: SVGElement | null = null
+  cacheMap: Map<string, HTMLElement> = new Map()
   constructor(options: IAbstractRender) {
     super()
     const { width, height } = options
@@ -45,6 +46,7 @@ export default class SvgRender extends AbstractRender {
     return this.element.outerHTML
   }
   clear(): void {
+    this.cacheMap.clear()
     this.oldElement = this.element
     const svg = this.element.cloneNode(false) as SVGElement
     this.element = svg
@@ -53,7 +55,21 @@ export default class SvgRender extends AbstractRender {
 
   render() {
     if (this.oldElement) {
-      morphdom(this.oldElement, this.element)
+      const cacheMap = this.cacheMap
+      morphdom(this.oldElement, this.element, {
+        onBeforeElUpdated(fromEl, toEl) {
+          if (toEl.dataset.cacheId) {
+            const realNode = cacheMap.get(toEl.dataset.cacheId)!
+            if (fromEl.isEqualNode(realNode)) {
+              return false
+            } else {
+              fromEl.replaceWith(realNode)
+              return false
+            }
+          }
+          return true
+        },
+      })
       this.element = this.oldElement
       this.currentElement = this.oldElement
       this.oldElement = null
@@ -310,5 +326,12 @@ export default class SvgRender extends AbstractRender {
   }
   html(html: string) {
     this.currentElement.innerHTML = html
+  }
+  addTempNode(id: string, element: HTMLElement) {
+    this.cacheMap.set(id, element)
+    // 复制一个临时节点
+    const tempNode = document.createElement('div')
+    tempNode.dataset.cacheId = id
+    this.current.append(tempNode)
   }
 }

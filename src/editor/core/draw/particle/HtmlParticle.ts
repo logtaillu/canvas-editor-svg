@@ -19,7 +19,11 @@ export class HtmlParticle {
     ctx.scale(this.options.scale, this.options.scale)
     ctx.current.id = element.id!
     ctx.fillRect(x, y, element.width!, element.height!)
-    ctx.html(element.value)
+    if (element.element) {
+      ctx.addTempNode(element.id!, element.element)
+    } else {
+      ctx.html(element.value)
+    }
     ctx.restore()
   }
 }

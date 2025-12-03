@@ -63,4 +63,5 @@ export abstract class AbstractRender {
   abstract createPattern(canvas: HTMLCanvasElement, repeat: string, width: number, height: number): void
   abstract html(html: string): void
   abstract get current(): SVGElement | HTMLCanvasElement
+  abstract addTempNode(id: string, element: HTMLElement): void
 }
