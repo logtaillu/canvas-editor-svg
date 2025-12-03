@@ -7,7 +7,8 @@ import { ControlComponent, ControlType } from '../../../dataset/enum/Control'
 import { ElementType } from '../../../dataset/enum/Element'
 import { IElement } from '../../../interface/Element'
 import { deepClone, getUUID, omitObject } from '../../../utils'
-import { formatElementContext, formatElementList } from '../../../utils/element'
+import { formatElementContext } from '../../../utils/element'
+import { formatElementList } from '../../../utils/format'
 import { CanvasEvent } from '../CanvasEvent'
 
 type IDragElement = IElement & { dragId: string }

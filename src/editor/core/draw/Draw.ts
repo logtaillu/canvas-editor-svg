@@ -82,7 +82,7 @@ import {
   ControlComponent,
   ControlIndentation
 } from '../../dataset/enum/Control'
-import { formatElementList } from '../../utils/element'
+import { formatElementList } from '../../utils/format'
 import { WorkerManager } from '../worker/WorkerManager'
 import { Previewer } from './particle/previewer/Previewer'
 import { DateParticle } from './particle/date/DateParticle'

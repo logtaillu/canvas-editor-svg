@@ -99,7 +99,6 @@ import {
 import {
   createDomFromElementList,
   formatElementContext,
-  formatElementList,
   isTextLikeElement,
   pickElementAttr,
   getElementListByHTML,
@@ -132,6 +131,7 @@ import {
 import { IAreaBadge, IBadge } from '../../interface/Badge'
 import { IRichtextOption } from '../../interface/Command'
 import { WatermarkType } from '../../dataset/enum/Watermark'
+import { formatElementList } from '../../utils/format'
 
 export class CommandAdapt {
   private draw: Draw

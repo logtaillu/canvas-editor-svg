@@ -23,9 +23,6 @@ export default defineConfig(({ mode }) => {
           rootDir: '/'
         }
       ],
-      worker: {
-        format: 'es'
-      },
       build: {
         lib: {
           name,

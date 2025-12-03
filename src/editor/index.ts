@@ -13,7 +13,7 @@ import {
   LocationPosition
 } from './dataset/enum/Common'
 import { ElementType } from './dataset/enum/Element'
-import { formatElementList } from './utils/element'
+import { formatElementList } from './utils/format'
 import { Register } from './core/register/Register'
 import { ContextMenu } from './core/contextmenu/ContextMenu'
 import {

@@ -42,7 +42,6 @@ import {
 } from '../../../utils'
 import {
   formatElementContext,
-  formatElementList,
   getNonHideElementIndex,
   pickElementAttr,
   zipElementList
@@ -70,6 +69,7 @@ import { IRowElement } from '../../../interface/Row'
 import { RowFlex } from '../../../dataset/enum/Row'
 import { ZERO } from '../../../dataset/constant/Common'
 import { AbstractRender } from '../../../render/AbstractRender'
+import { formatElementList } from '../../../utils/format'
 
 interface IMoveCursorResult {
   newIndex: number

@@ -16,7 +16,7 @@ import { LocationPosition } from '../../../dataset/enum/Common'
 import { RangeManager } from '../../range/RangeManager'
 import { Zone } from '../../zone/Zone'
 import { Position } from '../../position/Position'
-import { formatElementList, zipElementList } from '../../../utils/element'
+import { zipElementList } from '../../../utils/element'
 import { AreaMode } from '../../../dataset/enum/Area'
 import { IRange } from '../../../interface/Range'
 import { IElementPosition } from '../../../interface/Element'
@@ -25,6 +25,7 @@ import { defaultPlaceholderOption } from '../../../dataset/constant/Placeholder'
 import { DeepRequired } from '../../../interface/Common'
 import { IEditorOption } from '../../../interface/Editor'
 import { AbstractRender } from '../../../render/AbstractRender'
+import { formatElementList } from '../../../utils/format'
 
 export class Area {
   private draw: Draw

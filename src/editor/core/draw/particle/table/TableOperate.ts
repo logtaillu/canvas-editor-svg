@@ -9,9 +9,9 @@ import { ITd } from '../../../../interface/table/Td'
 import { ITr } from '../../../../interface/table/Tr'
 import { cloneProperty, getUUID } from '../../../../utils'
 import {
-  formatElementContext,
-  formatElementList
+  formatElementContext
 } from '../../../../utils/element'
+import { formatElementList } from '../../../../utils/format'
 import { Position } from '../../../position/Position'
 import { RangeManager } from '../../../range/RangeManager'
 import { Draw } from '../../Draw'
