@@ -16,8 +16,8 @@
     "package.json"
   ],
   "typings": "./dist/src/editor/index.d.ts",
-  "main": "./dist/canvas-editor.umd.js",
-  "module": "./dist/canvas-editor.es.js",
+  "main": "./dist/canvas-editor-svg.umd.js",
+  "module": "./dist/canvas-editor-svg.es.js",
   "homepage": "https://github.com/Hufe921/canvas-editor",
   "repository": {
     "type": "git",

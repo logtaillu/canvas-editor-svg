@@ -23,11 +23,15 @@ export default defineConfig(({ mode }) => {
           rootDir: '/'
         }
       ],
+      worker: {
+        format: 'es'
+      },
       build: {
         lib: {
           name,
           fileName: name,
-          entry: path.resolve(__dirname, 'src/editor/index.ts')
+          entry: path.resolve(__dirname, 'src/editor/index.ts'),
+          formats: ['es']
         },
         rollupOptions: {
           output: {
@@ -39,6 +43,9 @@ export default defineConfig(({ mode }) => {
   }
   return {
     base: `/${name}/`,
+    worker: {
+      format: 'es'
+    },
     server: {
       host: '0.0.0.0'
     }
