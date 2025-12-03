@@ -170,6 +170,8 @@ export class TextParticle {
     this.ctx.save('text')
     this.ctx.font = this.curElement.style
     this.ctx.fillStyle = this.curElement.color || this.options.defaultColor
+    // 防止空格没有撑开
+    this.ctx.current.style.whiteSpace ='break-spaces'
     this.ctx.fillText(this.text, this.curX, this.curY)
     this.ctx.restore()
   }
