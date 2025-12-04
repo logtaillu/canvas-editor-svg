@@ -11,7 +11,7 @@ import {
   ISetAreaPropertiesOption,
   ISetAreaValueOption
 } from '../../../interface/Area'
-import { EditorZone } from '../../../dataset/enum/Editor'
+import { EditorZone, RenderType } from '../../../dataset/enum/Editor'
 import { LocationPosition } from '../../../dataset/enum/Common'
 import { RangeManager } from '../../range/RangeManager'
 import { Zone } from '../../zone/Zone'
@@ -122,7 +122,9 @@ export class Area {
     if (!this.areaInfoMap.size) return
     ctx.save('g')
     const margins = this.draw.getMargins()
-    const width = this.draw.getInnerWidth()
+    const width = this.draw.getColumnInnerWidth()
+    const columnWidth = this.draw.getColumnWidth()
+    const column = this.draw.getOptions().column
     for (const areaInfoItem of this.areaInfoMap) {
       const { area, positionList } = areaInfoItem[1]
       if (
@@ -133,11 +135,14 @@ export class Area {
       }
       const pagePositionList = positionList.filter(p => p.pageNo === pageNo)
       if (!pagePositionList.length) continue
-      ctx.translate(0.5, 0.5)
+      // 不确定这个translate的作用，先不对svg生效
+      if (this.draw.getOptions().renderType === RenderType.CANVAS) {
+        ctx.translate(0.5, 0.5)
+      }
       const firstPosition = pagePositionList[0]
       const lastPosition = pagePositionList[pagePositionList.length - 1]
       // 起始位置
-      const x = margins[3]
+      const x = margins[3] + column.margins[3] + firstPosition.columnIndex * columnWidth
       const y = Math.ceil(firstPosition.coordinate.leftTop[1])
       const height = Math.ceil(lastPosition.coordinate.rightBottom[1] - y)
       // 背景色

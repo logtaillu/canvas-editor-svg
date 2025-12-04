@@ -462,6 +462,11 @@ export class Draw {
     return this.getInnerWidth() / count - (margins[1] + margins[3]) * this.options.scale
   }
 
+  public getColumnWidth(column?: DeepRequired<IColumnOption>): number {
+    const { count } = column || this.options.column
+    return this.getInnerWidth() / count
+  }
+
   public getOriginalInnerWidth(): number {
     const width = this.getOriginalWidth()
     const margins = this.getOriginalMargins()
@@ -1303,7 +1308,7 @@ export class Draw {
   private _createPage(pageNo: number) {
     const width = this.getWidth()
     const height = this.getHeight()
-    const Creator = this.options.renderType === 'svg' ? SVGRender : CanvasRender
+    const Creator = this.options.renderType === RenderType.CANVAS ? CanvasRender : SVGRender
     const page = new Creator({
       width,
       height

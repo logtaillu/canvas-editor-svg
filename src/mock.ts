@@ -421,25 +421,44 @@ elementList.push(
 
 // 模拟固定长度下划线
 elementList.push(
-  ...[
-    {
-      value: '患者签名：'
+  {
+    value: '',
+    type: ElementType.AREA,
+    area: {
+      backgroundColor: 'lightgreen',
+      borderColor: 'blue'
     },
-    {
-      type: ElementType.CONTROL,
-      value: '',
-      control: {
-        conceptId: '4',
-        type: ControlType.TEXT,
-        value: null,
-        placeholder: '',
-        prefix: '\u200c',
-        postfix: '\u200c',
-        minWidth: 160,
-        underline: true
+    areaId: 'testArea',
+    valueList: [
+      {
+        value: '患者签名：'
+      },
+      {
+        type: ElementType.CONTROL,
+        value: '',
+        control: {
+          conceptId: '4',
+          type: ControlType.TEXT,
+          value: null,
+          placeholder: '',
+          prefix: '\u200c',
+          postfix: '\u200c',
+          minWidth: 160,
+          underline: true
+        }
+      },
+      {
+        value: '',
+        type: ElementType.LIST,
+        listType: ListType.OL,
+        valueList: [
+          {
+            value: 'ax\nbx\ncx\nzx\ndx'
+          }
+        ]
       }
-    }
-  ]
+    ]
+  }
 )
 
 // 模拟结尾文本
