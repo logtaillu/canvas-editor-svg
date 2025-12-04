@@ -16,7 +16,13 @@ function dragover(evt: DragEvent | MouseEvent, host: CanvasEvent) {
     true
   )
   if (!editorRegion) return
-  const target = evt.target as HTMLDivElement
+  let target: HTMLDivElement | null = evt.target as HTMLDivElement
+  if (!target.dataset.index) {
+    target = target.closest('[data-index]')
+  }
+  if (!target) {
+    return
+  }
   const pageIndex = target.dataset.index
   // 设置pageNo
   if (pageIndex) {

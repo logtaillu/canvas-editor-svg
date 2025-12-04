@@ -1383,7 +1383,8 @@ export class Draw {
     const rowList: IRow[] = []
     // 使用栏数调整实际宽度
     const { margins, count } = column
-    const columnWidth = (innerWidth / count) - (margins[1] + margins[3]) * this.options.scale
+    const columnTotalWidth = innerWidth / count
+    const columnWidth = columnTotalWidth - (margins[1] + margins[3]) * this.options.scale
     if (elementList.length) {
       rowList.push({
         width: 0,
@@ -1400,6 +1401,7 @@ export class Draw {
     let x = startX
     let y = startY
     let pageNo = 0
+    let columnIndex = 0
     // 列表位置
     let listId: string | undefined
     let listIndex = 0
@@ -1872,20 +1874,21 @@ export class Draw {
       }
       listId = element.listId
       // 计算四周环绕导致的元素偏移量
+      const xAdd = column.margins[3] + columnIndex * columnTotalWidth
       const surroundPosition = this.position.setSurroundPosition({
         pageNo,
         rowElement,
         row: curRow,
         rowElementRect: {
-          x,
-          y,
+          x: x + xAdd,
+          y: y + column.margins[0],
           height,
           width: metrics.width
         },
         availableWidth,
         surroundElementList
       })
-      x = surroundPosition.x
+      x = surroundPosition.x - xAdd
       curRowWidth += surroundPosition.rowIncreaseWidth
       x += metrics.width
       // 是否强制换行
@@ -2014,31 +2017,35 @@ export class Draw {
           isPagingMode &&
           !isFromTable &&
           pageHeight &&
-          (y - startY + mainOuterHeight + height > pageHeight ||
+          (y - startY + mainOuterHeight + column.margins[0] + column.margins[2] + height > pageHeight ||
             element.type === ElementType.PAGE_BREAK)
         ) {
           y = startY
           // 删除多余四周环绕型元素
-          deleteSurroundElementList(surroundElementList, pageNo)
-          pageNo += 1
+          columnIndex = (columnIndex + 1) % column.count
+          if (columnIndex === 0) {
+            deleteSurroundElementList(surroundElementList, pageNo)
+            pageNo += 1
+          }
         }
         // 计算下一行第一个元素是否存在环绕交叉
         rowElement.left = 0
         const nextRow = rowList[rowList.length - 1]
+        const xAdd = column.margins[3] + columnIndex * columnTotalWidth
         const surroundPosition = this.position.setSurroundPosition({
           pageNo,
           rowElement,
           row: nextRow,
           rowElementRect: {
-            x,
-            y,
+            x: x + xAdd,
+            y: y + column.margins[0],
             height,
             width: metrics.width
           },
           availableWidth,
           surroundElementList
         })
-        x = surroundPosition.x
+        x = surroundPosition.x - xAdd
         x += metrics.width
       }
     }
