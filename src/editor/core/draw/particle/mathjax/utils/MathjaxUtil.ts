@@ -1,48 +1,29 @@
-export async function getMathJaxParts() {
-  const [
-    { mathjax },
-    { TeX },
-    { SVG },
-    { AllPackages },
-    { HTMLHandler },
-    { liteAdaptor }
-  ] = await Promise.all([
-    import('mathjax-full/js/mathjax.js'),
-    import('mathjax-full/js/input/tex.js'),
-    import('mathjax-full/js/output/svg.js'),
-    import('mathjax-full/js/input/tex/AllPackages.js'),
-    import('mathjax-full/js/handlers/html/HTMLHandler.js'),
-    import('mathjax-full/js/adaptors/liteAdaptor.js'),
-    import('mathjax-full/js/adaptors/lite/Element')
-  ])
+import { mathjax } from 'mathjax-full/js/mathjax.js'
+import { TeX } from 'mathjax-full/js/input/tex.js'
+import { SVG } from 'mathjax-full/js/output/svg.js'
+import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js'
+import { HTMLHandler } from 'mathjax-full/js/handlers/html/HTMLHandler.js'
+import { liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor.js'
 
-  const adaptor = liteAdaptor()
+const adaptor = liteAdaptor()
 
-  // 2. 注册文档处理器 (与之前相同)
-  const htmlHandler = new HTMLHandler(adaptor)
-  mathjax.handlers.register(htmlHandler)
+// 2. 注册文档处理器 (与之前相同)
+const htmlHandler = new HTMLHandler(adaptor)
+mathjax.handlers.register(htmlHandler)
 
-  // 3. 配置 MathJax (与之前相同)
-  const texInput = new TeX({
-    packages: AllPackages
-  })
+// 3. 配置 MathJax (与之前相同)
+const texInput = new TeX({
+  packages: AllPackages
+})
 
-  const svgOutput = new SVG({
-    fontCache: 'local'
-  })
+const svgOutput = new SVG({
+  fontCache: 'local'
+})
 
-  const doc = mathjax.document('', {
-    InputJax: texInput,
-    OutputJax: svgOutput
-  })
-  return {doc, adaptor}
-}
-let doc: any, adaptor: any
-(async () => {
-  const res = await getMathJaxParts()
-  doc = res.doc
-  adaptor = res.adaptor
-})()
+const doc = mathjax.document('', {
+  InputJax: texInput,
+  OutputJax: svgOutput
+})
 // 缓存
 const mathjaxSvgCache = new Map()
 function roundNum (num: number, pow: number) {

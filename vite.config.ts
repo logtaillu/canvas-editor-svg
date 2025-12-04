@@ -32,7 +32,13 @@ export default defineConfig(({ mode }) => {
         },
         rollupOptions: {
           output: {
-            sourcemap: true
+            sourcemap: true,
+            manualChunks(id) {
+              if (id.includes('mathjax-full')) {
+                return 'mathjax-full'
+              }
+              return null
+            }
           }
         }
       }
