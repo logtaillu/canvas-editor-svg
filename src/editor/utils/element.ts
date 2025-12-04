@@ -673,8 +673,9 @@ export function createDomFromElementList(
   options?: IEditorOption
 ) {
   const editorOptions = mergeOption(options)
-  function buildDom(payload: IElement[]): HTMLDivElement {
-    const clipboardDom = document.createElement('div')
+  function buildDom(payload: IElement[]): HTMLTemplateElement {
+    const template = document.createElement('template')
+    const clipboardDom = template.content
     for (let e = 0; e < payload.length; e++) {
       const element = payload[e]
       // 构造表格
@@ -862,10 +863,11 @@ export function createDomFromElementList(
         clipboardDom.append(dom)
       }
     }
-    return clipboardDom
+    return template
   }
   // 按行布局分类创建dom
-  const clipboardDom = document.createElement('div')
+  const template = document.createElement('template')
+  const clipboardDom = template.content
   const groupElementList = groupElementListByRowFlex(elementList)
   for (let g = 0; g < groupElementList.length; g++) {
     const elementGroupRowFlex = groupElementList[g]
@@ -902,7 +904,7 @@ export function createDomFromElementList(
       })
     }
   }
-  return clipboardDom
+  return template
 }
 
 export function convertTextNodeToElement(

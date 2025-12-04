@@ -383,12 +383,13 @@ elementList.push(
       value: '医学公式：'
     },
     {
-      value: `{E_k} = hv - {W_0}`,
+      value: '${E_k} = hv - {W_0}$',
       type: ElementType.MATHJAX
     },
     {
-      value: '\n'
-    }
+      value: '$$f(x)=2$$',
+      type: ElementType.MATHJAX
+    },
   ])
 )
 

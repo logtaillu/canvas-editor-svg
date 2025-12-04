@@ -36,7 +36,9 @@ function ex2px (str: string, reg: RegExp, baseFont = 16) {
   return roundNum(num * baseFont / 1.89, 4)
 }
 export const MathJaxBaseFont = 16
-export function renderLatexToSvg (latex: string, block = false) {
+export function renderLatexToSvg(latex: string) {
+  const block = latex.startsWith('$$')
+  latex = latex.replace(/^\$+/, '').replace(/\$+$/, '')
   const cacheKey = `${latex}`
   // 缓存读取
   if (mathjaxSvgCache.has(cacheKey)) {
@@ -46,7 +48,7 @@ export function renderLatexToSvg (latex: string, block = false) {
   let svgNode
   const convertLatex = (tex: string) => {
     return doc.convert(tex, {
-      display: block, // 块级公式
+      // display: block, // 块级公式
       em: MathJaxBaseFont, // 基准字体大小(px)
       ex: MathJaxBaseFont / 2 // x-height(px)
     })
@@ -72,6 +74,7 @@ export function renderLatexToSvg (latex: string, block = false) {
     svg: svgString,
     width: w,
     height: h,
-    align: align
+    align: align,
+    block
   }
 }

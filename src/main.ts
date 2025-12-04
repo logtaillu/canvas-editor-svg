@@ -1012,7 +1012,7 @@ window.onload = function () {
         instance.command.executeInsertElementList([
           {
             type: ElementType.MATHJAX,
-            value
+            value: `$${value}$`
           }
         ])
       }

@@ -71,12 +71,14 @@ export async function writeElementList(
   options: DeepRequired<IEditorOption>
 ) {
   const clipboardDom = createDomFromElementList(elementList, options)
+  const tempDiv = document.createElement('div')
+  tempDiv.append(clipboardDom.content)
   // 写入剪贴板
-  document.body.append(clipboardDom)
-  const text = clipboardDom.innerText
+  document.body.append(tempDiv)
+  const text = tempDiv.innerText
+  const html = tempDiv.innerHTML
   // 先追加后移除，否则innerText无法解析换行符
-  clipboardDom.remove()
-  const html = clipboardDom.innerHTML
+  tempDiv.remove()
   if (!text && !html && !elementList.length) return
   await writeClipboardItem(text, html, zipElementList(elementList))
 }

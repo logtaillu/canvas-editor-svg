@@ -201,7 +201,8 @@ export class Position {
             rightTop: [x + metrics.width, y],
             rightBottom: [x + metrics.width, y + curRow.height]
           },
-          columnRowIndex: columnRow
+          columnRowIndex: columnRow,
+          columnIndex: curRow.columnIndex
         }
         // 缓存浮动元素信息
         if (
@@ -579,14 +580,19 @@ export class Position {
         return false
       }
     )
+    const columnWidth = this.draw.getColumnInnerWidth()
+    const startX  = this.draw.getMargins()[3]
+
     // 多栏下是从左往右的
     for (let j = 0; j < lastLetterList.length; j++) {
       const {
         index,
         rowNo,
-        coordinate: { leftTop, rightTop }
+        coordinate: { leftTop },
+        columnIndex
       } = lastLetterList[j]
-      if (j > 0 && x < rightTop[0]) {
+      const startPos = startX + columnWidth * columnIndex
+      if (!isTable && j > 0 && x < startPos) {
         break
       }
       const headIndex = positionList.findIndex(

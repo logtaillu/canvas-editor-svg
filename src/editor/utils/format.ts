@@ -7,6 +7,7 @@ import { START_LINE_BREAK_REG } from '../dataset/constant/Regular'
 import { titleSizeMapping } from '../dataset/constant/Title'
 import { ControlComponent, ControlType } from '../dataset/enum/Control'
 import { ElementType } from '../dataset/enum/Element'
+import { RowFlex } from '../dataset/enum/Row'
 import { DeepRequired } from '../interface/Common'
 import { IEditorOption } from '../interface/Editor'
 import { IElement } from '../interface/Element'
@@ -505,10 +506,14 @@ export function formatElementList(
       el.laTexSVG = svg
       el.id = el.id || getUUID()
     } else if (el.type === ElementType.MATHJAX) {
-      const { svg, width, height } = MathjaxParticle.convertLaTextToSVG(el.value)
+      const { svg, width, height, block } = MathjaxParticle.convertLaTextToSVG(el.value)
       el.width = el.width || width
       el.height = el.height || height
       el.laTexSVG = svg
+      el.isBlock = block
+      if (block) {
+        el.rowFlex = RowFlex.CENTER
+      }
       el.id = el.id || getUUID()
     } else if (el.type === ElementType.HTML) {
       el.id = el.id || getUUID()

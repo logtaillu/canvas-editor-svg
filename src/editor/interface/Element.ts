@@ -118,6 +118,7 @@ export interface IRadioElement {
 
 export interface ILaTexElement {
   laTexSVG?: string
+  isBlock?: boolean
 }
 
 export interface IHtmlElement {
@@ -195,6 +196,7 @@ export interface IElementPosition {
   isFirstLetter: boolean
   isLastLetter: boolean
   columnRowIndex: number
+  columnIndex: number
   coordinate: {
     leftTop: number[]
     leftBottom: number[]

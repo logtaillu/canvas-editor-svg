@@ -1513,7 +1513,7 @@ export class Draw {
               elementList: td.value,
               isFromTable: true,
               isPagingMode,
-              column
+              column: defaultColumnOptions
             })
             const rowHeight = rowList.reduce((pre, cur) => pre + cur.height, 0)
             td.rowList = rowList
@@ -1903,7 +1903,7 @@ export class Draw {
           (element.controlComponent === ControlComponent.CHECKBOX ||
             element.controlComponent === ControlComponent.RADIO) &&
           preElement?.controlComponent === ControlComponent.VALUE) ||
-        (i !== 0 && element.value === ZERO && !element.area?.hide)
+        (i !== 0 && element.value === ZERO && !element.area?.hide) || (element.type === ElementType.MATHJAX && element.isBlock) || (preElement?.type === ElementType.MATHJAX && preElement.isBlock)
       // 是否宽度不足导致换行
       const isWidthNotEnough = curRowWidth > availableWidth
       const isWrap = isForceBreak || isWidthNotEnough
