@@ -906,11 +906,36 @@ export function createDomFromElementList(
   }
   return template
 }
-
+// 分离文本和公式
+function splitTextAndLatex(text: string) {
+  const results = []
+  let startIndex = 0
+  text.replace(/(\$+)[^\$]+\1/g, (matchstr, _type, index) => {
+    if (index > startIndex) {
+      results.push({
+        value: text.substring(startIndex, index),
+        type: ElementType.TEXT
+      })
+    }
+    results.push({
+      value: matchstr,
+      type: ElementType.MATHJAX
+    })
+    startIndex = index + matchstr.length
+    return matchstr
+  })
+  if (startIndex < text.length) {
+    results.push({
+      value: text.substring(startIndex),
+      type: ElementType.TEXT
+    })
+  }
+  return results
+}
 export function convertTextNodeToElement(
   textNode: Element | Node
-): IElement | null {
-  if (!textNode || textNode.nodeType !== 3) return null
+): IElement[] {
+  if (!textNode || textNode.nodeType !== 3) return []
   const parentNode = <HTMLElement>textNode.parentNode
   const anchorNode =
     parentNode.nodeName === 'FONT'
@@ -919,274 +944,64 @@ export function convertTextNodeToElement(
   const rowFlex = convertTextAlignToRowFlex(anchorNode)
   const value = textNode.textContent
   const style = window.getComputedStyle(anchorNode)
-  if (!value || anchorNode.nodeName === 'STYLE') return null
-  const element: IElement = {
-    value,
-    color: style.color,
-    bold: Number(style.fontWeight) > 500,
-    italic: style.fontStyle.includes('italic'),
-    size: Math.floor(parseFloat(style.fontSize))
-  }
-  // 元素类型-默认文本
-  if (anchorNode.nodeName === 'SUB' || style.verticalAlign === 'sub') {
-    element.type = ElementType.SUBSCRIPT
-  } else if (anchorNode.nodeName === 'SUP' || style.verticalAlign === 'super') {
-    element.type = ElementType.SUPERSCRIPT
-  }
-  // 行对齐
-  if (rowFlex !== RowFlex.LEFT) {
-    element.rowFlex = rowFlex
-  }
-  // 高亮色
-  if (style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-    element.highlight = style.backgroundColor
-  }
-  // 下划线
-  if (style.textDecorationLine.includes('underline')) {
-    element.underline = true
-  }
-  // 删除线
-  if (style.textDecorationLine.includes('line-through')) {
-    element.strikeout = true
-  }
-  return element
+  if (!value || anchorNode.nodeName === 'STYLE') return []
+  const texts = splitTextAndLatex(value)
+  return texts.map(text =>{
+    const element: IElement = {
+      ...text,
+      color: style.color,
+      bold: Number(style.fontWeight) > 500,
+      italic: style.fontStyle.includes('italic'),
+      size: Math.floor(parseFloat(style.fontSize))
+    }
+    // 元素类型-默认文本
+    if (anchorNode.nodeName === 'SUB' || style.verticalAlign === 'sub') {
+      element.type = ElementType.SUBSCRIPT
+    } else if (anchorNode.nodeName === 'SUP' || style.verticalAlign === 'super') {
+      element.type = ElementType.SUPERSCRIPT
+    }
+    // 行对齐
+    if (rowFlex !== RowFlex.LEFT) {
+      element.rowFlex = rowFlex
+    }
+    // 高亮色
+    if (style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+      element.highlight = style.backgroundColor
+    }
+    // 下划线
+    if (style.textDecorationLine.includes('underline')) {
+      element.underline = true
+    }
+    // 删除线
+    if (style.textDecorationLine.includes('line-through')) {
+      element.strikeout = true
+    }
+    return element
+  })
 }
 
 export interface IGetElementListByHTMLOption {
   innerWidth: number
 }
 
-export function getElementListByHTML(
-  htmlText: string,
-  options: IGetElementListByHTMLOption
-): IElement[] {
-  const elementList: IElement[] = []
-  function findTextNode(dom: Element | Node) {
-    if (dom.nodeType === 3) {
-      const element = convertTextNodeToElement(dom)
-      if (element) {
-        elementList.push(element)
-      }
-    } else if (dom.nodeType === 1) {
-      const childNodes = dom.childNodes
-      for (let n = 0; n < childNodes.length; n++) {
-        const node = childNodes[n]
-        // br元素与display:block元素需换行
-        if (node.nodeName === 'BR') {
-          elementList.push({
-            value: '\n'
-          })
-        } else if (node.nodeName === 'A') {
-          const aElement = node as HTMLLinkElement
-          const value = aElement.innerText
-          if (value) {
-            elementList.push({
-              type: ElementType.HYPERLINK,
-              value: '',
-              valueList: [
-                {
-                  value
-                }
-              ],
-              url: aElement.href
-            })
-          }
-        } else if (/H[1-6]/.test(node.nodeName)) {
-          const hElement = node as HTMLTitleElement
-          const valueList = getElementListByHTML(
-            replaceHTMLElementTag(hElement, 'div').outerHTML,
-            options
-          )
-          elementList.push({
-            value: '',
-            type: ElementType.TITLE,
-            level: titleNodeNameMapping[node.nodeName],
-            valueList
-          })
-          if (
-            node.nextSibling &&
-            !INLINE_NODE_NAME.includes(node.nextSibling.nodeName)
-          ) {
-            elementList.push({
-              value: '\n'
-            })
-          }
-        } else if (node.nodeName === 'UL' || node.nodeName === 'OL') {
-          const listNode = node as HTMLOListElement | HTMLUListElement
-          const listElement: IElement = {
-            value: '',
-            type: ElementType.LIST,
-            valueList: []
-          }
-          if (node.nodeName === 'OL') {
-            listElement.listType = ListType.OL
-          } else {
-            listElement.listType = ListType.UL
-            listElement.listStyle = <ListStyle>(
-              (<unknown>listNode.style.listStyleType)
-            )
-          }
-          listNode.querySelectorAll('li').forEach(li => {
-            const liValueList = getElementListByHTML(li.innerHTML, options)
-            liValueList.forEach(list => {
-              if (list.value === '\n') {
-                list.listWrap = true
-              }
-            })
-            liValueList.unshift({
-              value: '\n'
-            })
-            listElement.valueList!.push(...liValueList)
-          })
-          elementList.push(listElement)
-        } else if (node.nodeName === 'HR') {
-          elementList.push({
-            value: '\n',
-            type: ElementType.SEPARATOR
-          })
-        } else if (node.nodeName === 'IMG') {
-          const { src, width, height } = node as HTMLImageElement
-          if (src && width && height) {
-            elementList.push({
-              width,
-              height,
-              value: src,
-              type: ElementType.IMAGE
-            })
-          }
-        } else if (node.nodeName === 'VIDEO') {
-          const { src, width, height } = node as HTMLVideoElement
-          if (src && width && height) {
-            elementList.push({
-              value: '',
-              type: ElementType.BLOCK,
-              block: {
-                type: BlockType.VIDEO,
-                videoBlock: {
-                  src
-                }
-              },
-              width,
-              height
-            })
-          }
-        } else if (node.nodeName === 'IFRAME') {
-          const { src, srcdoc, width, height } = node as HTMLIFrameElement
-          if ((src || srcdoc) && width && height) {
-            elementList.push({
-              value: '',
-              type: ElementType.BLOCK,
-              block: {
-                type: BlockType.IFRAME,
-                iframeBlock: {
-                  src,
-                  srcdoc
-                }
-              },
-              width: parseInt(width),
-              height: parseInt(height)
-            })
-          }
-        } else if (node.nodeName === 'TABLE') {
-          const tableElement = node as HTMLTableElement
-          const element: IElement = {
-            type: ElementType.TABLE,
-            value: '\n',
-            colgroup: [],
-            trList: []
-          }
-          // colgroup
-          const colElements = tableElement.querySelectorAll('colgroup col')
-          // 基础数据
-          tableElement.querySelectorAll('tr').forEach(trElement => {
-            const trHeightStr = Number(
-              window.getComputedStyle(trElement).height.replace('px', '')
-            )
-            const tr: ITr = {
-              height: trHeightStr,
-              minHeight: trHeightStr,
-              tdList: []
-            }
-            trElement.querySelectorAll('th,td').forEach(tdElement => {
-              const tableCell = <HTMLTableCellElement>tdElement
-              const valueList = getElementListByHTML(
-                tableCell.innerHTML,
-                options
-              )
-              const td: ITd = {
-                colspan: tableCell.colSpan,
-                rowspan: tableCell.rowSpan,
-                value: valueList,
-                verticalAlign: window.getComputedStyle(tdElement)
-                  .verticalAlign as VerticalAlign,
-                width: parseFloat(window.getComputedStyle(tdElement).width)
-              }
-              if (tableCell.style.backgroundColor) {
-                td.backgroundColor = tableCell.style.backgroundColor
-              }
-              tr.tdList.push(td)
-            })
-            element.trList!.push(tr)
-          })
-          if (element.trList!.length) {
-            // 列选项数据
-            const tdCount = element.trList![0].tdList.reduce(
-              (pre, cur) => pre + cur.colspan,
-              0
-            )
-            const width = Math.ceil(options.innerWidth / tdCount)
-            for (let i = 0; i < tdCount; i++) {
-              const colElement = colElements[i]?.getAttribute('width')
-              element.colgroup!.push({
-                width: colElement ? parseFloat(colElement) : width
-              })
-            }
-            elementList.push(element)
-          }
-        } else if (
-          node.nodeName === 'INPUT' &&
-          (<HTMLInputElement>node).type === ControlComponent.CHECKBOX
-        ) {
-          elementList.push({
-            type: ElementType.CHECKBOX,
-            value: '',
-            checkbox: {
-              value: (<HTMLInputElement>node).checked
-            }
-          })
-        } else if (
-          node.nodeName === 'INPUT' &&
-          (<HTMLInputElement>node).type === ControlComponent.RADIO
-        ) {
-          elementList.push({
-            type: ElementType.RADIO,
-            value: '',
-            radio: {
-              value: (<HTMLInputElement>node).checked
-            }
-          })
-        } else {
-          findTextNode(node)
-          if (node.nodeType === 1 && n !== childNodes.length - 1) {
-            const nodeElement = node as Element
-            const display = window.getComputedStyle(nodeElement).display
-            if (
-              display === 'block' &&
-              !/(\n|\r\n)$/.test(nodeElement.textContent!)
-            ) {
-              elementList.push({
-                value: '\n'
-              })
-            }
-          }
-        }
-      }
+// 检查图片加载状态
+export async function checkImageComplete (dom: HTMLDivElement) {
+  const imgs = Array.from(dom.getElementsByTagName('img'))
+  await Promise.all(imgs.map(async e => {
+    // 基于现有dom检查
+    if (e.complete) {
+      return Promise.resolve()
+    } else {
+      return new Promise((resolve, reject) => {
+        e.onload = resolve
+        e.onerror = reject
+      })
     }
-  }
-  // 追加dom
-  const clipboardDom = document.createElement('div')
-  clipboardDom.innerHTML = htmlText
-  document.body.appendChild(clipboardDom)
+  }))
+}
+
+function getElementListByDom(clipboardDom: HTMLElement | Element, options: IGetElementListByHTMLOption) {
+  const elementList: IElement[] = []
   const deleteNodes: ChildNode[] = []
   clipboardDom.childNodes.forEach(child => {
     if (child.nodeType !== 1 && !child.textContent?.trim()) {
@@ -1194,11 +1009,259 @@ export function getElementListByHTML(
     }
   })
   deleteNodes.forEach(node => node.remove())
+  function findTextNode(dom: Element | Node) {
+    if (dom.nodeType === 3) {
+      const elements = convertTextNodeToElement(dom)
+      if (elements.length) {
+        elementList.push(...elements)
+      }
+    } else if (dom.nodeType === 1) {
+      if ((dom as any).dataset && (dom as any).dataset.latex) {
+        const value = (dom as any).dataset.latex
+        elementList.push({
+          type: ElementType.MATHJAX,
+          value: value.startsWith('$') ? value : `$${value}$`,
+        })
+      } else {
+        const childNodes = dom.childNodes
+        for (let n = 0; n < childNodes.length; n++) {
+          const node = childNodes[n]
+          // br元素与display:block元素需换行
+          if (node.nodeName === 'BR') {
+            elementList.push({
+              value: '\n'
+            })
+          } else if (node.nodeName === 'A') {
+            const aElement = node as HTMLLinkElement
+            const value = aElement.innerText
+            if (value) {
+              elementList.push({
+                type: ElementType.HYPERLINK,
+                value: '',
+                valueList: [
+                  {
+                    value
+                  }
+                ],
+                url: aElement.href
+              })
+            }
+          } else if (/H[1-6]/.test(node.nodeName)) {
+            const hElement = node as HTMLTitleElement
+            const valueList = getElementListByDom(
+              hElement,
+              options
+            )
+            elementList.push({
+              value: '',
+              type: ElementType.TITLE,
+              level: titleNodeNameMapping[node.nodeName],
+              valueList
+            })
+            if (
+              node.nextSibling &&
+              !INLINE_NODE_NAME.includes(node.nextSibling.nodeName)
+            ) {
+              elementList.push({
+                value: '\n'
+              })
+            }
+          } else if (node.nodeName === 'UL' || node.nodeName === 'OL') {
+            const listNode = node as HTMLOListElement | HTMLUListElement
+            const listElement: IElement = {
+              value: '',
+              type: ElementType.LIST,
+              valueList: []
+            }
+            if (node.nodeName === 'OL') {
+              listElement.listType = ListType.OL
+            } else {
+              listElement.listType = ListType.UL
+              listElement.listStyle = <ListStyle>(
+                (<unknown>listNode.style.listStyleType)
+              )
+            }
+            listNode.querySelectorAll('li').forEach(li => {
+              const liValueList = getElementListByDom(li, options)
+              liValueList.forEach(list => {
+                if (list.value === '\n') {
+                  list.listWrap = true
+                }
+              })
+              liValueList.unshift({
+                value: '\n'
+              })
+              listElement.valueList!.push(...liValueList)
+            })
+            elementList.push(listElement)
+          } else if (node.nodeName === 'HR') {
+            elementList.push({
+              value: '\n',
+              type: ElementType.SEPARATOR
+            })
+          } else if (node.nodeName === 'IMG') {
+            const { src, width, height } = node as HTMLImageElement
+            if (src && width && height) {
+              elementList.push({
+                width,
+                height,
+                value: src,
+                type: ElementType.IMAGE
+              })
+            }
+          } else if (node.nodeName === 'VIDEO') {
+            const { src, width, height } = node as HTMLVideoElement
+            if (src && width && height) {
+              elementList.push({
+                value: '',
+                type: ElementType.BLOCK,
+                block: {
+                  type: BlockType.VIDEO,
+                  videoBlock: {
+                    src
+                  }
+                },
+                width,
+                height
+              })
+            }
+          } else if (node.nodeName === 'IFRAME') {
+            const { src, srcdoc, width, height } = node as HTMLIFrameElement
+            if ((src || srcdoc) && width && height) {
+              elementList.push({
+                value: '',
+                type: ElementType.BLOCK,
+                block: {
+                  type: BlockType.IFRAME,
+                  iframeBlock: {
+                    src,
+                    srcdoc
+                  }
+                },
+                width: parseInt(width),
+                height: parseInt(height)
+              })
+            }
+          } else if (node.nodeName === 'TABLE') {
+            const tableElement = node as HTMLTableElement
+            const element: IElement = {
+              type: ElementType.TABLE,
+              value: '\n',
+              colgroup: [],
+              trList: []
+            }
+            // colgroup
+            const colElements = tableElement.querySelectorAll('colgroup col')
+            // 基础数据
+            tableElement.querySelectorAll('tr').forEach(trElement => {
+              const trHeightStr = Number(
+                window.getComputedStyle(trElement).height.replace('px', '')
+              )
+              const tr: ITr = {
+                height: trHeightStr,
+                minHeight: trHeightStr,
+                tdList: []
+              }
+              trElement.querySelectorAll('th,td').forEach(tdElement => {
+                const tableCell = <HTMLTableCellElement>tdElement
+                const valueList = getElementListByDom(
+                  tableCell,
+                  options
+                )
+                const td: ITd = {
+                  colspan: tableCell.colSpan,
+                  rowspan: tableCell.rowSpan,
+                  value: valueList,
+                  verticalAlign: window.getComputedStyle(tdElement)
+                    .verticalAlign as VerticalAlign,
+                  width: parseFloat(window.getComputedStyle(tdElement).width)
+                }
+                if (tableCell.style.backgroundColor) {
+                  td.backgroundColor = tableCell.style.backgroundColor
+                }
+                tr.tdList.push(td)
+              })
+              element.trList!.push(tr)
+            })
+            if (element.trList!.length) {
+              // 列选项数据
+              const tdCount = element.trList![0].tdList.reduce(
+                (pre, cur) => pre + cur.colspan,
+                0
+              )
+              const width = Math.ceil(options.innerWidth / tdCount)
+              for (let i = 0; i < tdCount; i++) {
+                const colElement = colElements[i]?.getAttribute('width')
+                element.colgroup!.push({
+                  width: colElement ? parseFloat(colElement) : width
+                })
+              }
+              elementList.push(element)
+            }
+          } else if (
+            node.nodeName === 'INPUT' &&
+            (<HTMLInputElement>node).type === ControlComponent.CHECKBOX
+          ) {
+            elementList.push({
+              type: ElementType.CHECKBOX,
+              value: '',
+              checkbox: {
+                value: (<HTMLInputElement>node).checked
+              }
+            })
+          } else if (
+            node.nodeName === 'INPUT' &&
+            (<HTMLInputElement>node).type === ControlComponent.RADIO
+          ) {
+            elementList.push({
+              type: ElementType.RADIO,
+              value: '',
+              radio: {
+                value: (<HTMLInputElement>node).checked
+              }
+            })
+          } else {
+            findTextNode(node)
+            if (node.nodeType === 1 && n !== childNodes.length - 1) {
+              const nodeElement = node as Element
+              const display = window.getComputedStyle(nodeElement).display
+              if (
+                display === 'block' &&
+                !/(\n|\r\n)$/.test(nodeElement.textContent!)
+              ) {
+                elementList.push({
+                  value: '\n'
+                })
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   // 搜索文本节点
   findTextNode(clipboardDom)
+  return elementList
+}
+
+export async function getElementListByHTML(
+  htmlText: string | string[],
+  options: IGetElementListByHTMLOption
+): Promise<IElement[][]> {
+  // 追加dom
+  const clipboardDom = document.createElement('div')
+  // 一次生成dom批量处理
+  const htmlArray = Array.isArray(htmlText) ? htmlText : [htmlText]
+  const htmlString = htmlArray.map(str => `<div>${str}</div>`).join('')
+  clipboardDom.innerHTML = htmlString
+  document.body.appendChild(clipboardDom)
+  await checkImageComplete(clipboardDom)
+  const elementGroups = Array.from(clipboardDom.children).map(dom => {
+    return getElementListByDom(dom, options)
+  })
   // 移除dom
   clipboardDom.remove()
-  return elementList
+  return elementGroups
 }
 
 export function getTextFromElementList(elementList: IElement[]) {

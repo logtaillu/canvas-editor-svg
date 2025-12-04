@@ -64,13 +64,13 @@ export function pasteElement(host: CanvasEvent, elementList: IElement[]) {
   draw.insertElementList(elementList)
 }
 
-export function pasteHTML(host: CanvasEvent, htmlText: string) {
+export async function pasteHTML(host: CanvasEvent, htmlText: string) {
   const draw = host.getDraw()
   if (draw.isReadonly() || draw.isDisabled()) return
-  const elementList = getElementListByHTML(htmlText, {
+  const elementList = await getElementListByHTML(htmlText, {
     innerWidth: draw.getOriginalColumnInnerWidth()
   })
-  pasteElement(host, elementList)
+  pasteElement(host, elementList[0])
 }
 
 export function pasteImage(host: CanvasEvent, file: File | Blob) {
