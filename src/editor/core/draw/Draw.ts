@@ -2730,7 +2730,7 @@ export class Draw {
   }
 
   private _resizeObserve() {
-    const htmlElements = this.elementList.filter(element => element.type === ElementType.HTML)
+    const htmlElements = [this.elementList, this.header.getElementList(), this.footer.getElementList()].flat().filter(element => element.type === ElementType.HTML)
     this.htmlResizeObserver.observe(htmlElements)
   }
 

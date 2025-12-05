@@ -11,6 +11,11 @@
 * 会需要根据实际情况调整
 * 因为有getComputedStyle，是基于dom渲染的，初次转换后可以存储下来，只需要执行一次
 3. 分块：area类型可以结构上分块，界面上是分开的，若界面需要其他定位再做特殊处理
-
+4. 不可操作：header和footer有editable=false，同时给zone.tipDisabled=true
 # todo
-1. 对接项目测试，看需要补充什么
+1. bug:点击头部触发了滚动:GlobalEvent的mousedown
+2. bug:跨页选区
+2. 不可删除、不可选中元素
+3. 块内浮动定位?
+4. 差异化的header和footer
+对接项目测试，看需要补充什么
