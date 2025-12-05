@@ -74,6 +74,7 @@ import { AreaMode } from './dataset/enum/Area'
 import { IBadge } from './interface/Badge'
 import { WatermarkType } from './dataset/enum/Watermark'
 import { INTERNAL_SHORTCUT_KEY } from './dataset/constant/Shortcut'
+import { clearMathjaxCache } from './dataset/constant/Mathjax'
 
 export default class Editor {
   public command: Command
@@ -90,6 +91,7 @@ export default class Editor {
     data: IEditorData | IElement[],
     options: IEditorOption = {}
   ) {
+    clearMathjaxCache()
     // 合并配置
     const editorOptions = mergeOption(options)
     // 数据处理

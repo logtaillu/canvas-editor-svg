@@ -76,3 +76,8 @@ export type IImageMousedown = (payload: {
   evt: MouseEvent
   element: IElement
 }) => void
+
+export type IMathjaxMousedown = (payload: {
+  evt: MouseEvent
+  element: IElement
+}) => void

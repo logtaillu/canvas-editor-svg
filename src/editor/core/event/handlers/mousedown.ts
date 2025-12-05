@@ -110,6 +110,7 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
     isCheckbox,
     isRadio,
     isImage,
+    isMathjax,
     isTable,
     tdValueIndex,
     hitLineStartIndex
@@ -129,6 +130,7 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
   const isDirectHitImage = !!(isDirectHit && isImage)
   const isDirectHitCheckbox = !!(isDirectHit && isCheckbox)
   const isDirectHitRadio = !!(isDirectHit && isRadio)
+  const isDirectHitMathjax = !!(isDirectHit && isMathjax)
   if (~index) {
     let startIndex = curIndex
     let endIndex = curIndex
@@ -224,6 +226,16 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
     const eventBus = draw.getEventBus()
     if (eventBus.isSubscribe('imageMousedown')) {
       eventBus.emit('imageMousedown', {
+        evt,
+        element: curElement
+      })
+    }
+  }
+  if (isDirectHitMathjax) {
+    // 触发公式编辑器
+    const eventBus = draw.getEventBus()
+    if (eventBus.isSubscribe('mathjaxMousedown')) {
+      eventBus.emit('mathjaxMousedown', {
         evt,
         element: curElement
       })

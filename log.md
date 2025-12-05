@@ -1,15 +1,16 @@
-# done
-1. svg渲染
-2. 基于mathjax3的latex转svg
-3. 分栏：可能有bug
-4.基于foreignObject的html元素渲染
-5. 分离formatElements避免mathjax被带入worker,可以不用import()，但还是先分开
-6. 和vue对接，通过ref.$el移动组件，能够挂载，具体形式可以视实际情况再调整
-7. element=>html：createDomFromElementList，结构还原基础
-  浮动图片定位=>给放在了嵌入型的位置上，还原后应该没有原始的效果了
-8. html=>element: createElementListFromHTML，结构转换基础，根据具体情况补充处理
-  基于dom渲染的解构，因为有getComputedStyle，如果要脱离dom需要替换这一部分
-9. 分块：可以用area类型分块，get area by id,但是界面上是分开的，若界面需要其他定位再做特殊处理
+# 已添加
+1. 支持svg渲染
+2. 添加分栏功能
+3. 基于mathjax3的latex转svg渲染公式，不用挂载dom,有其他渲染方式可替换[只考虑svg模式]
+4. 基于foreignObject的html元素渲染，可append现有的vue组件[只考虑svg模式]
+5. 公式点击编辑修改
+# 已确认
+1. createDomFromElementList：element=>html，复制操作，如果希望复制到html编辑器中会需要考虑
+还原回html会丢失四周环绕布局等特性，所以数据存储大概不需要还原回去
+2. createElementListFromHTML：html=>element，结构转换，用于初始转换和粘贴操作
+* 会需要根据实际情况调整
+* 因为有getComputedStyle，是基于dom渲染的，初次转换后可以存储下来，只需要执行一次
+3. 分块：area类型可以结构上分块，界面上是分开的，若界面需要其他定位再做特殊处理
+
 # todo
-3. 界面交互：公式点击编辑
-4. 数据结构处理&界面构建
+1. 对接项目测试，看需要补充什么

@@ -480,6 +480,13 @@ export class Position {
             isImage: true
           }
         }
+        if (element.type === ElementType.MATHJAX) {
+          return {
+            index: curPositionIndex,
+            isDirectHit: true,
+            isMathjax: true
+          }
+        }
         if (
           element.type === ElementType.CHECKBOX ||
           element.controlComponent === ControlComponent.CHECKBOX

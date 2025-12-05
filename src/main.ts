@@ -994,8 +994,10 @@ window.onload = function () {
   }
 
   const latexDom = document.querySelector<HTMLDivElement>('.menu-item__latex')!
-  latexDom.onclick = function () {
-    console.log('LaTeX')
+  latexDom.onclick = function (_ev, element: IElement | null = null) {
+    let latex = element?.value || ''
+    const block = latex.startsWith('$$')
+    latex = latex.replace(/^\$+/, '').replace(/\$+$/, '')
     new Dialog({
       title: 'LaTeX',
       data: [
@@ -1003,18 +1005,25 @@ window.onload = function () {
           type: 'textarea',
           height: 100,
           name: 'value',
-          placeholder: '请输入LaTeX文本'
+          placeholder: '请输入LaTeX文本',
+          value: latex
         }
       ],
       onConfirm: payload => {
         const value = payload.find(p => p.name === 'value')?.value
         if (!value) return
-        instance.command.executeInsertElementList([
-          {
-            type: ElementType.MATHJAX,
-            value: `$${value}$`
-          }
-        ])
+        if (latex) {
+          const replaceValue = block ? `$$${value}$$` : `$${value}$`
+          instance.command.executeReplateMathjaxElement(replaceValue)
+          // 替换
+        } else {
+          instance.command.executeInsertElementList([
+            {
+              type: ElementType.MATHJAX,
+              value: `$${value}$`
+            }
+          ])
+        }
       }
     })
   }
@@ -1964,4 +1973,12 @@ window.onload = function () {
       }
     }
   ])
+
+  // 11. 监听事件
+  instance.eventBus.on('mathjaxMousedown', (payload: {
+    evt: MouseEvent
+    element: IElement
+    }) => {
+      (latexDom.onclick as any)?.(payload.evt, payload.element)
+  })
 }

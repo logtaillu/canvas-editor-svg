@@ -132,6 +132,7 @@ import { IAreaBadge, IBadge } from '../../interface/Badge'
 import { IRichtextOption } from '../../interface/Command'
 import { WatermarkType } from '../../dataset/enum/Watermark'
 import { formatElementList } from '../../utils/format'
+import { MathjaxParticle } from '../draw/particle/mathjax/MathjaxParticle'
 
 export class CommandAdapt {
   private draw: Draw
@@ -1362,6 +1363,20 @@ export class CommandAdapt {
     if (scale !== 1) {
       this.draw.setPageScale(scale)
     }
+  }
+
+  public replaceMathjaxElement(payload: string) {
+    const { startIndex } = this.range.getRange()
+    const elementList = this.draw.getElementList()
+    const element = elementList[startIndex]
+    if (!element || element.type !== ElementType.MATHJAX) return
+    const { width, height } = MathjaxParticle.convertLaTextToSVG(payload)
+    element.width = width
+    element.height = height
+    element.value = payload
+    this.draw.render({
+      isSetCursor: false
+    })
   }
 
   public replaceImageElement(payload: string) {

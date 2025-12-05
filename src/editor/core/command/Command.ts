@@ -67,6 +67,7 @@ export class Command {
   public executeSearchNavigateNext: CommandAdapt['searchNavigateNext']
   public executeReplace: CommandAdapt['replace']
   public executePrint: CommandAdapt['print']
+  public executeReplateMathjaxElement: CommandAdapt['replaceMathjaxElement']
   public executeReplaceImageElement: CommandAdapt['replaceImageElement']
   public executeSaveAsImageElement: CommandAdapt['saveAsImageElement']
   public executeChangeImageDisplay: CommandAdapt['changeImageDisplay']
@@ -214,6 +215,8 @@ export class Command {
     this.executeSearchNavigateNext = adapt.searchNavigateNext.bind(adapt)
     this.executeReplace = adapt.replace.bind(adapt)
     this.executePrint = adapt.print.bind(adapt)
+    this.executeReplateMathjaxElement =
+      adapt.replaceMathjaxElement.bind(adapt)
     this.executeReplaceImageElement = adapt.replaceImageElement.bind(adapt)
     this.executeSaveAsImageElement = adapt.saveAsImageElement.bind(adapt)
     this.executeChangeImageDisplay = adapt.changeImageDisplay.bind(adapt)

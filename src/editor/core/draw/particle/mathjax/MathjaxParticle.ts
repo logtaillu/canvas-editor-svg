@@ -6,7 +6,9 @@ import { MathJaxBaseFont, renderLatexToSvg } from '../mathjax/utils/MathjaxUtil'
 
 export class MathjaxParticle {
   protected options: Required<IEditorOption>
+  protected draw: Draw
   constructor(draw: Draw) {
+    this.draw = draw
     this.options = draw.getOptions()
   }
   public static convertLaTextToSVG(laTex: string) {
@@ -27,6 +29,12 @@ export class MathjaxParticle {
     ctx.translate(x, y - height * actureScale - align * actureScale)
     ctx.scale(actureScale, actureScale)
     ctx.html(svg)
+    // 蒙层覆盖展示光标
+    ctx.save('rect')
+    ctx.globalAlpha = 0
+    ctx.current.style.cursor = 'pointer'
+    ctx.fillRect(0, 0, element.width!, element.height!)
+    ctx.restore()
     ctx.restore()
   }
 }

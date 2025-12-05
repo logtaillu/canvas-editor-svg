@@ -4,6 +4,7 @@ import { SVG } from 'mathjax-full/js/output/svg.js'
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js'
 import { HTMLHandler } from 'mathjax-full/js/handlers/html/HTMLHandler.js'
 import { liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor.js'
+import { mathjaxSvgCache } from '../../../../../dataset/constant/Mathjax'
 
 const adaptor = liteAdaptor()
 
@@ -24,8 +25,6 @@ const doc = mathjax.document('', {
   InputJax: texInput,
   OutputJax: svgOutput
 })
-// 缓存
-const mathjaxSvgCache = new Map()
 function roundNum (num: number, pow: number) {
   const p = Math.pow(10, pow)
   return Math.round(num * p) / p
