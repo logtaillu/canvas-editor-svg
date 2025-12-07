@@ -1,5 +1,6 @@
 import { ImageDisplay } from '../../../dataset/enum/Common'
 import { ControlComponent } from '../../../dataset/enum/Control'
+import { RenderType } from '../../../dataset/enum/Editor'
 import { ElementType } from '../../../dataset/enum/Element'
 import { CanvasEvent } from '../CanvasEvent'
 
@@ -44,8 +45,8 @@ export function mousemove(evt: MouseEvent, host: CanvasEvent) {
     return
   }
   if (!host.isAllowSelection || !host.mouseDownStartPosition) return
-  const target = evt.target as HTMLDivElement
-  const pageIndex = target.dataset.index
+  const target = draw.getOptions().renderType === RenderType.CANVAS ? evt.target as HTMLDivElement : (evt.target as HTMLElement)?.closest('[data-index]') as HTMLDivElement
+  const pageIndex = target?.dataset?.index
   // 设置pageNo
   if (pageIndex) {
     draw.setPageNo(Number(pageIndex))

@@ -79,7 +79,7 @@ export class GlobalEvent {
       target,
       (node: any) => {
         return pageList.find(page => {
-          return page.element && node && (page.element === node || page.element.contains(node))
+          return page.element && node && (page.element === node || ( node instanceof Node && page.element.contains(node)))
         })
       },
       true

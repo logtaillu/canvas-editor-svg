@@ -5,7 +5,7 @@ import { MouseEventButton } from '../../../dataset/enum/Event'
 import { ControlComponent } from '../../../dataset/enum/Control'
 import { ControlType } from '../../../dataset/enum/Control'
 import { IPreviewerDrawOption } from '../../../interface/Previewer'
-import { deepClone, findParent } from '../../../utils'
+import { deepClone } from '../../../utils'
 import { isMod } from '../../../utils/hotkey'
 import { CheckboxControl } from '../../draw/control/checkbox/CheckboxControl'
 import { RadioControl } from '../../draw/control/radio/RadioControl'
@@ -87,7 +87,7 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
       }
     }
   }
-  const target = draw.getOptions().renderType === RenderType.CANVAS ? evt.target as HTMLDivElement : <SVGElement>findParent(<SVGElement>evt.target, (node: Node) => node.nodeName === 'svg')
+  const target = draw.getOptions().renderType === RenderType.CANVAS ? evt.target as HTMLDivElement : (evt.target as HTMLElement)?.closest('[data-index]') as HTMLDivElement
   if (!target) {
     return
   }

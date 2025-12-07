@@ -13,8 +13,7 @@
 3. 分块：area类型可以结构上分块，界面上是分开的，若界面需要其他定位再做特殊处理
 4. 不可操作：header和footer有editable=false，同时给zone.tipDisabled=true
 # todo
-1. bug:跨页选区
-2. 不可删除、不可选中元素
-3. block内部的四周环绕定位
-4. 差异化的header和footer
+1. 不可删除、不可选中元素
+2. block内部的四周环绕定位
+3. 差异化的header和footer
 对接项目测试，看需要补充什么

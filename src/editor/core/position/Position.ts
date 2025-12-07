@@ -578,75 +578,76 @@ export class Position {
       }
     }
     // 判断所属行是否存在元素
+    const startX = this.draw.getMargins()[3]
+    const columnCount = this.draw.getOptions().column.count
+    const columnWidth = this.draw.getColumnInnerWidth()
     const lastLetterList = positionList.filter(
       p => {
         if (p.isLastLetter && p.pageNo === positionNo) {
-          const { coordinate: { leftTop, leftBottom } } = p
-          return y > leftTop[1] && y <= leftBottom[1]
+          const { columnIndex } = p
+          const startPos = columnIndex <= 0 ? -Infinity : startX + columnWidth * columnIndex
+          const endPos = columnIndex >= columnCount - 1 ? Infinity : startX + columnWidth * (columnIndex + 1)
+          return x >= startPos && x < endPos
         }
         return false
       }
     )
-    const columnWidth = this.draw.getColumnInnerWidth()
-    const startX  = this.draw.getMargins()[3]
-
     // 多栏下是从左往右的
     for (let j = 0; j < lastLetterList.length; j++) {
       const {
         index,
         rowNo,
-        coordinate: { leftTop },
-        columnIndex
+        coordinate: { leftTop, leftBottom }
       } = lastLetterList[j]
-      const startPos = startX + columnWidth * columnIndex
-      if (!isTable && j > 0 && x < startPos) {
-        break
-      }
-      const headIndex = positionList.findIndex(
-        p => p.pageNo === positionNo && p.rowNo === rowNo
-      )
-      const headElement = elementList[headIndex]
-      const headPosition = positionList[headIndex]
-      // 是否在头部
-      const headStartX =
-        headElement.listStyle === ListStyle.CHECKBOX
-          ? this.draw.getMargins()[3]
-          : headPosition.coordinate.leftTop[0]
-      if (x < headStartX) {
-        // 头部元素为空元素时无需选中
-        if (~headIndex) {
-          if (headPosition.value === ZERO) {
-            curPositionIndex = headIndex
+      if (y > leftTop[1] && y <= leftBottom[1]) {
+        const headIndex = positionList.findIndex(
+          p => p.pageNo === positionNo && p.rowNo === rowNo
+        )
+        const headElement = elementList[headIndex]
+        const headPosition = positionList[headIndex]
+        // 是否在头部
+        const headStartX =
+          headElement.listStyle === ListStyle.CHECKBOX
+            ? this.draw.getMargins()[3]
+            : headPosition.coordinate.leftTop[0]
+        if (x < headStartX) {
+          // 头部元素为空元素时无需选中
+          if (~headIndex) {
+            if (headPosition.value === ZERO) {
+              curPositionIndex = headIndex
+            } else {
+              curPositionIndex = headIndex - 1
+              hitLineStartIndex = headIndex
+            }
           } else {
-            curPositionIndex = headIndex - 1
-            hitLineStartIndex = headIndex
+            curPositionIndex = index
           }
         } else {
+          // 是否是复选框列表
+          if (headElement.listStyle === ListStyle.CHECKBOX && x < leftTop[0]) {
+            return {
+              index: headIndex,
+              isDirectHit: true,
+              isCheckbox: true
+            }
+          }
           curPositionIndex = index
         }
-      } else {
-        // 是否是复选框列表
-        if (headElement.listStyle === ListStyle.CHECKBOX && x < leftTop[0]) {
-          return {
-            index: headIndex,
-            isDirectHit: true,
-            isCheckbox: true
-          }
-        }
-        curPositionIndex = index
+        isLastArea = true
+        break
       }
-      isLastArea = true
     }
     if (!isLastArea) {
+      const { column, scale } = this.draw.getOptions()
       // 页眉底部距离页面顶部距离
       const header = this.draw.getHeader()
       const headerHeight = header.getHeight()
-      const headerBottomY = header.getHeaderTop() + headerHeight
+      const headerBottomY = header.getHeaderTop() + headerHeight + column.margins[0] * scale
       // 页脚上部距离页面顶部距离
       const footer = this.draw.getFooter()
       const pageHeight = this.draw.getHeight()
       const footerTopY =
-        pageHeight - (footer.getFooterBottom() + footer.getHeight())
+        pageHeight - (footer.getFooterBottom() + footer.getHeight() + column.margins[2] * scale)
       // 判断所属位置是否属于页眉页脚区域
       if (isMainActive) {
         // 页眉：当前位置小于页眉底部位置
