@@ -779,6 +779,16 @@ export function createDomFromElementList(
           img.height = element.height!
         }
         clipboardDom.append(img)
+      } else if (element.type === ElementType.HTML) {
+        if (element.element) {
+          clipboardDom.append(element.element.cloneNode(true))
+        } else {
+          const div = document.createElement('div')
+          div.innerHTML = element.value!
+          div.childNodes.forEach(childNode => {
+            clipboardDom.append(childNode)
+          })
+        }
       } else if (element.type === ElementType.BLOCK) {
         if (element.block?.type === BlockType.VIDEO) {
           const src = element.block.videoBlock?.src
@@ -1346,7 +1356,7 @@ export function getIsBlockElement(element?: IElement) {
   return (
     !!element?.type &&
     (BLOCK_ELEMENT_TYPE.includes(element.type) ||
-      element.imgDisplay === ImageDisplay.INLINE)
+      element.imgDisplay === ImageDisplay.INLINE || (element.type === ElementType.HTML && !element.fixWidth))
   )
 }
 

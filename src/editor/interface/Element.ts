@@ -123,6 +123,8 @@ export interface ILaTexElement {
 
 export interface IHtmlElement {
   element?: HTMLElement
+  fixWidth?: number
+  fixHeight?: number
 }
 
 export interface IDateElement {

@@ -1728,12 +1728,12 @@ export class Draw {
         metrics.boundingBoxAscent = -rowMargin
         metrics.boundingBoxDescent = -rowMargin + metrics.height
       } else if (element.type === ElementType.HTML) {
-        element.width = availableWidth / scale
-        metrics.width = availableWidth
-        element.height = element.height || defaultSize
+        element.width = element.fixWidth ? Math.min(availableWidth / scale, element.fixWidth) : availableWidth / scale
+        metrics.width = element.width * scale
+        element.height = element.fixHeight || element.height || defaultSize
         metrics.height = element.height * scale
-        metrics.boundingBoxAscent = metrics.height - rowMargin
-        metrics.boundingBoxDescent = -rowMargin
+        metrics.boundingBoxAscent = 0
+        metrics.boundingBoxDescent = metrics.height
       } else if (element.type === ElementType.PAGE_BREAK) {
         element.width = availableWidth / scale
         metrics.width = availableWidth
@@ -1807,7 +1807,7 @@ export class Draw {
         !element.hide &&
         ((element.imgDisplay !== ImageDisplay.INLINE &&
           element.type === ElementType.IMAGE) ||
-          element.type === ElementType.LATEX)
+          element.type === ElementType.LATEX || (element.type === ElementType.HTML && element.fixWidth))
           ? metrics.height + rowMargin
           : metrics.boundingBoxAscent + rowMargin
       const height =
@@ -1972,7 +1972,7 @@ export class Draw {
           (getIsBlockElement(elementList[1]) || !!elementList[1]?.areaId)
         ) {
           curRow.height = defaultBasicRowMarginHeight
-          curRow.ascent = defaultBasicRowMarginHeight
+          console.log('1', defaultBasicRowMarginHeight)
         } else if (curRow.height < height) {
           curRow.height = height
           curRow.ascent = ascent
@@ -2241,7 +2241,7 @@ export class Draw {
           this.mathjaxParticle.render(ctx, element, x, y + offsetY)
         } else if (element.type === ElementType.HTML) {
           this.textParticle.complete()
-          this.htmlParticle.render(ctx, element, x, y)
+          this.htmlParticle.render(ctx, element, x, y + offsetY)
         } else if (element.type === ElementType.TABLE) {
           if (isCrossRowCol) {
             rangeRecord.x = x
@@ -2730,7 +2730,7 @@ export class Draw {
   }
 
   private _resizeObserve() {
-    const htmlElements = [this.elementList, this.header.getElementList(), this.footer.getElementList()].flat().filter(element => element.type === ElementType.HTML)
+    const htmlElements = [this.elementList, this.header.getElementList(), this.footer.getElementList()].flat().filter(element => element.type === ElementType.HTML && !element.fixHeight)
     this.htmlResizeObserver.observe(htmlElements)
   }
 

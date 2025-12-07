@@ -172,7 +172,7 @@ export class Position {
           !element.hide &&
           ((element.imgDisplay !== ImageDisplay.INLINE &&
             element.type === ElementType.IMAGE) ||
-            element.type === ElementType.LATEX)
+            element.type === ElementType.LATEX || element.type === ElementType.HTML && element.fixWidth)
             ? curRow.ascent - metrics.height
             : curRow.ascent
         // 偏移量（内部计算使用）
@@ -578,7 +578,7 @@ export class Position {
       }
     }
     // 判断所属行是否存在元素
-    const startX = this.draw.getMargins()[3]
+    const startX = this.draw.getMargins()[3] + this.draw.getMargins()[3]
     const columnCount = this.draw.getOptions().column.count
     const columnWidth = this.draw.getColumnInnerWidth()
     const lastLetterList = positionList.filter(

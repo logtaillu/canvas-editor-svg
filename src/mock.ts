@@ -491,6 +491,15 @@ elementList.push({
   value: `<div style="text-align: center;">
   <p>12345</p>
   <p>23456</p>
+  </div>`,
+  fixWidth: 120
+})
+
+elementList.push({
+  type: ElementType.HTML,
+  value: `<div style="text-align: center;background: lightblue;">
+  <p>12345</p>
+  <p>23456</p>
   </div>`
 })
 
