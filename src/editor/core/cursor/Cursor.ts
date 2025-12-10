@@ -204,9 +204,13 @@ export class Cursor {
       pageNo,
       coordinate: { leftTop, leftBottom }
     } = cursorPosition
+    const zoneManager = this.draw.getZone()
+    const curPageNo = zoneManager.isMainActive()
+      ? pageNo
+      : this.draw.getPageNo()
     // 当前页面距离滚动容器顶部距离
     const prePageY =
-      pageNo * (this.draw.getHeight() + this.draw.getPageGap()) +
+      curPageNo * (this.draw.getHeight() + this.draw.getPageGap()) +
       this.container.getBoundingClientRect().top
     // 向上移动时：以顶部距离为准，向下移动时：以底部位置为准
     const isUp = direction === MoveDirection.UP
