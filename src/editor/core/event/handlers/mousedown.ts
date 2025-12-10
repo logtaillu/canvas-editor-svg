@@ -12,6 +12,7 @@ import { RadioControl } from '../../draw/control/radio/RadioControl'
 import { CanvasEvent } from '../CanvasEvent'
 import { IElement } from '../../../interface/Element'
 import { Draw } from '../../draw/Draw'
+import { adjustMouseOffset } from './utils'
 
 export function setRangeCache(host: CanvasEvent) {
   const draw = host.getDraw()
@@ -68,6 +69,7 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
   const position = draw.getPosition()
   // 存在选区时忽略右键点击
   const range = rangeManager.getRange()
+  const { offsetX, offsetY } = adjustMouseOffset(evt)
   if (
     evt.button === MouseEventButton.RIGHT &&
     (range.isCrossRowCol || !rangeManager.getIsCollapsed())
@@ -78,8 +80,8 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
   if (!host.isAllowDrag) {
     if (!isReadonly && range.startIndex !== range.endIndex) {
       const isPointInRange = rangeManager.getIsPointInRange(
-        evt.offsetX,
-        evt.offsetY
+        offsetX,
+        offsetY
       )
       if (isPointInRange) {
         setRangeCache(host)
@@ -100,8 +102,8 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
   // 缓存旧上下文信息
   const oldPositionContext = deepClone(position.getPositionContext())
   const positionResult = position.adjustPositionContext({
-    x: evt.offsetX,
-    y: evt.offsetY
+    x: offsetX,
+    y: offsetY
   })
   if (!positionResult) return
   const {
@@ -119,8 +121,8 @@ export function mousedown(evt: MouseEvent, host: CanvasEvent) {
   host.mouseDownStartPosition = {
     ...positionResult,
     index: isTable ? tdValueIndex! : index,
-    x: evt.offsetX,
-    y: evt.offsetY
+    x: offsetX,
+    y: offsetY
   }
   const elementList = draw.getElementList()
   const positionList = position.getPositionList()

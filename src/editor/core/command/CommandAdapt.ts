@@ -133,6 +133,7 @@ import { IRichtextOption } from '../../interface/Command'
 import { WatermarkType } from '../../dataset/enum/Watermark'
 import { formatElementList } from '../../utils/format'
 import { MathjaxParticle } from '../draw/particle/mathjax/MathjaxParticle'
+import { adjustMouseOffset } from '../event/handlers/utils'
 
 export class CommandAdapt {
   private draw: Draw
@@ -2473,9 +2474,10 @@ export class CommandAdapt {
     if (!pageIndex) return null
     const { isMustDirectHit = true } = options
     const pageNo = Number(pageIndex)
+    const { offsetX, offsetY } = adjustMouseOffset(evt)
     const positionContext = this.position.getPositionByXY({
-      x: evt.offsetX,
-      y: evt.offsetY,
+      x: offsetX,
+      y: offsetY,
       pageNo
     })
     const {

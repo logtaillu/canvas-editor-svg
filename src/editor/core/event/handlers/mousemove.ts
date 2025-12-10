@@ -3,14 +3,16 @@ import { ControlComponent } from '../../../dataset/enum/Control'
 import { RenderType } from '../../../dataset/enum/Editor'
 import { ElementType } from '../../../dataset/enum/Element'
 import { CanvasEvent } from '../CanvasEvent'
+import { adjustMouseOffset } from './utils'
 
 export function mousemove(evt: MouseEvent, host: CanvasEvent) {
   const draw = host.getDraw()
   // 是否是拖拽文字
+  const { offsetX, offsetY } = adjustMouseOffset(evt)
   if (host.isAllowDrag) {
     // 是否允许拖拽到选区
-    const x = evt.offsetX
-    const y = evt.offsetY
+    const x = offsetX
+    const y = offsetY
     const { startIndex, endIndex } = host.cacheRange!
     const positionList = host.cachePositionList!
     for (let p = startIndex + 1; p <= endIndex; p++) {
@@ -54,8 +56,8 @@ export function mousemove(evt: MouseEvent, host: CanvasEvent) {
   // 结束位置
   const position = draw.getPosition()
   const positionResult = position.getPositionByXY({
-    x: evt.offsetX,
-    y: evt.offsetY
+    x: offsetX,
+    y: offsetY
   })
   if (!~positionResult.index) return
   const {

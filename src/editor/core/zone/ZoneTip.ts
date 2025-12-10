@@ -2,6 +2,7 @@ import { EDITOR_PREFIX } from '../../dataset/constant/Editor'
 import { EditorZone } from '../../dataset/enum/Editor'
 import { throttle } from '../../utils'
 import { Draw } from '../draw/Draw'
+import { adjustMouseOffset } from '../event/handlers/utils'
 import { I18n } from '../i18n/I18n'
 import { Zone } from './Zone'
 
@@ -48,9 +49,11 @@ export class ZoneTip {
       'mousemove',
       throttle((evt: MouseEvent) => {
         if (this.isDisableMouseMove || !this.draw.getIsPagingMode()) return
-        if (!evt.offsetY) return
-        if (evt.target instanceof SVGElement) {
-          const mousemoveZone = this.zone.getZoneByY(evt.offsetY)
+        const { offsetY} = adjustMouseOffset(evt)
+        if (!offsetY) return
+        const target = (evt.target as HTMLElement)?.closest('[data-index]') as HTMLDivElement
+        if (target instanceof SVGElement || target instanceof HTMLCanvasElement) {
+          const mousemoveZone = this.zone.getZoneByY(offsetY)
           if (!watchZones.includes(mousemoveZone)) {
             this._updateZoneTip(false)
             return

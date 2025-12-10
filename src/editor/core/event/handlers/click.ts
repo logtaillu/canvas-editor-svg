@@ -4,6 +4,7 @@ import { NUMBER_LIKE_REG } from '../../../dataset/constant/Regular'
 import { ElementType } from '../../../dataset/enum/Element'
 import { IRange } from '../../../interface/Range'
 import { CanvasEvent } from '../CanvasEvent'
+import { adjustMouseOffset } from './utils'
 
 // 通过分词器获取单词所在选区
 export function getWordRangeBySegmenter(host: CanvasEvent): IRange | null {
@@ -107,9 +108,10 @@ export function getWordRangeByCursor(host: CanvasEvent): IRange | null {
 function dblclick(host: CanvasEvent, evt: MouseEvent) {
   const draw = host.getDraw()
   const position = draw.getPosition()
+  const { offsetX, offsetY } = adjustMouseOffset(evt)
   const positionContext = position.getPositionByXY({
-    x: evt.offsetX,
-    y: evt.offsetY
+    x: offsetX,
+    y: offsetY
   })
   // 图片预览
   if (positionContext.isImage && positionContext.isDirectHit) {

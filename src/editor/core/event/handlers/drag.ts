@@ -2,6 +2,7 @@ import { ImageDisplay } from '../../../dataset/enum/Common'
 import { ElementType } from '../../../dataset/enum/Element'
 import { findParent } from '../../../utils'
 import { CanvasEvent } from '../CanvasEvent'
+import { adjustMouseOffset } from './utils'
 
 function dragover(evt: DragEvent | MouseEvent, host: CanvasEvent) {
   const draw = host.getDraw()
@@ -29,9 +30,10 @@ function dragover(evt: DragEvent | MouseEvent, host: CanvasEvent) {
     draw.setPageNo(Number(pageIndex))
   }
   const position = draw.getPosition()
+  const { offsetX, offsetY } = adjustMouseOffset(evt)
   const positionContext = position.adjustPositionContext({
-    x: evt.offsetX,
-    y: evt.offsetY
+    x: offsetX,
+    y: offsetY
   })
   if (!positionContext) return
   const { isTable, tdValueIndex, index } = positionContext

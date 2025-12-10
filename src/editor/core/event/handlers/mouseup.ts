@@ -10,6 +10,7 @@ import { deepClone, getUUID, omitObject } from '../../../utils'
 import { formatElementContext } from '../../../utils/element'
 import { formatElementList } from '../../../utils/format'
 import { CanvasEvent } from '../CanvasEvent'
+import { adjustMouseOffset } from './utils'
 
 type IDragElement = IElement & { dragId: string }
 
@@ -35,8 +36,9 @@ function moveImgPosition(
     element.imgDisplay === ImageDisplay.FLOAT_TOP ||
     element.imgDisplay === ImageDisplay.FLOAT_BOTTOM
   ) {
-    const moveX = evt.offsetX - host.mouseDownStartPosition!.x!
-    const moveY = evt.offsetY - host.mouseDownStartPosition!.y!
+    const { offsetX, offsetY } = adjustMouseOffset(evt)
+    const moveX = offsetX - host.mouseDownStartPosition!.x!
+    const moveY = offsetY - host.mouseDownStartPosition!.y!
     const imgFloatPosition = element.imgFloatPosition!
     element.imgFloatPosition = {
       x: imgFloatPosition.x + moveX,
