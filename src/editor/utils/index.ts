@@ -421,3 +421,15 @@ export function indexOf(
   }
   return { index: match.index, length: match[0].length }
 }
+
+export function groupBy<T = unknown>(list: T[], key: string | number): T[][] {
+  const result = list.reduce((acc, cur) => {
+    const group = (cur as any)[key]
+    if (!acc[group]) {
+      acc[group] = []
+    }
+    acc[group].push(cur)
+    return acc
+  }, {} as Record<string | number, T[]>)
+  return Object.values(result)
+}

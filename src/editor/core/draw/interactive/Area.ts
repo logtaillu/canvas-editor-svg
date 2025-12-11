@@ -1,5 +1,5 @@
 import { Draw } from '../Draw'
-import { deepClone, getUUID, isNonValue } from '../../../utils'
+import { deepClone, getUUID, groupBy, isNonValue } from '../../../utils'
 import { ElementType } from '../../../dataset/enum/Element'
 import {
   IArea,
@@ -139,37 +139,40 @@ export class Area {
       if (this.draw.getOptions().renderType === RenderType.CANVAS) {
         ctx.translate(0.5, 0.5)
       }
-      const firstPosition = pagePositionList[0]
-      const lastPosition = pagePositionList[pagePositionList.length - 1]
-      // 起始位置
-      const x = margins[3] + column.margins[3] + firstPosition.columnIndex * columnWidth
-      const y = Math.ceil(firstPosition.coordinate.leftTop[1])
-      const height = Math.ceil(lastPosition.coordinate.rightBottom[1] - y)
-      // 背景色
-      if (area.backgroundColor) {
-        ctx.begin('rect')
-        ctx.fillStyle = area.backgroundColor
-        ctx.fillRect(x, y, width, height)
-        ctx.end()
-      }
-      // 边框
-      if (area.borderColor) {
-        ctx.begin('rect')
-        ctx.strokeStyle = area.borderColor
-        ctx.strokeRect(x, y, width, height)
-        ctx.end()
-      }
-      // 提示词
-      if (area.placeholder && positionList.length <= 1) {
-        const placeholder = new Placeholder(this.draw)
-        placeholder.render(ctx, {
-          placeholder: {
-            ...defaultPlaceholderOption,
-            ...area.placeholder
-          },
-          startY: firstPosition.coordinate.leftTop[1]
-        })
-      }
+      const columnPositionList = groupBy(pagePositionList, 'columnIndex')
+      columnPositionList.forEach(columnPositionList => {
+        const firstPosition = columnPositionList[0]
+        const lastPosition = columnPositionList[columnPositionList.length - 1]
+        // 起始位置
+        const x = margins[3] + column.margins[3] + firstPosition.columnIndex * columnWidth
+        const y = Math.ceil(firstPosition.coordinate.leftTop[1])
+        const height = Math.ceil(lastPosition.coordinate.rightBottom[1] - y)
+        // 背景色
+        if (area.backgroundColor) {
+          ctx.begin('rect')
+          ctx.fillStyle = area.backgroundColor
+          ctx.fillRect(x, y, width, height)
+          ctx.end()
+        }
+        // 边框
+        if (area.borderColor) {
+          ctx.begin('rect')
+          ctx.strokeStyle = area.borderColor
+          ctx.strokeRect(x, y, width, height)
+          ctx.end()
+        }
+        // 提示词
+        if (area.placeholder && positionList.length <= 1) {
+          const placeholder = new Placeholder(this.draw)
+          placeholder.render(ctx, {
+            placeholder: {
+              ...defaultPlaceholderOption,
+              ...area.placeholder
+            },
+            startY: firstPosition.coordinate.leftTop[1]
+          })
+        }
+      })
       ctx.translateBack()
     }
     ctx.restore()
