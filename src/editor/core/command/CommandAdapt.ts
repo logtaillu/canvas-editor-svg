@@ -2147,18 +2147,18 @@ export class CommandAdapt {
   public async setHTML(payload: Partial<IEditorHTML>) {
     const { header, main, footer } = payload
     const innerWidth = this.draw.getOriginalColumnInnerWidth()
-    const elementList = await getElementListByHTML([header || '', main || '', footer || ''], {
+    const elementList = await getElementListByHTML({ header, main, footer  }, {
       innerWidth
     })
     // 不设置值时数据为undefined，避免覆盖当前数据
-    const getElementList = (htmlText: string | undefined, index: number) =>
+    const getElementList = (htmlText: string | undefined, key: string) =>
       htmlText !== undefined
-        ? elementList[index]
+        ? elementList[key]
         : undefined
     this.setValue({
-      header: getElementList(header, 0),
-      main: getElementList(main, 1),
-      footer: getElementList(footer, 2)
+      header: getElementList(header, 'header'),
+      main: getElementList(main, 'main'),
+      footer: getElementList(footer, 'footer')
     })
   }
 

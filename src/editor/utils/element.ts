@@ -1259,19 +1259,20 @@ function getElementListByDom(clipboardDom: HTMLElement | Element, options: IGetE
 }
 
 export async function getElementListByHTML(
-  htmlText: string | string[],
+  htmlText: Record<string, string | undefined>,
   options: IGetElementListByHTMLOption
-): Promise<IElement[][]> {
+): Promise<Record<string, IElement[]>> {
   // 追加dom
   const clipboardDom = document.createElement('div')
   // 一次生成dom批量处理
-  const htmlArray = Array.isArray(htmlText) ? htmlText : [htmlText]
-  const htmlString = htmlArray.map(str => `<div>${str}</div>`).join('')
+  const htmlArray = Object.keys(htmlText)
+  const htmlString = htmlArray.map(key => `<div>${htmlText[key] || ''}</div>`).join('')
   clipboardDom.innerHTML = htmlString
   document.body.appendChild(clipboardDom)
   await checkImageComplete(clipboardDom)
-  const elementGroups = Array.from(clipboardDom.children).map(dom => {
-    return getElementListByDom(dom, options)
+  const elementGroups: Record<string, IElement[]> = {}
+  Array.from(clipboardDom.children).forEach((dom, index) => {
+    elementGroups[htmlArray[index]] = getElementListByDom(dom, options)
   })
   // 移除dom
   clipboardDom.remove()
