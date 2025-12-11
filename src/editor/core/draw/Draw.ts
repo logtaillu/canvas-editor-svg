@@ -1972,7 +1972,6 @@ export class Draw {
           (getIsBlockElement(elementList[1]) || !!elementList[1]?.areaId)
         ) {
           curRow.height = defaultBasicRowMarginHeight
-          console.log('1', defaultBasicRowMarginHeight)
         } else if (curRow.height < height) {
           curRow.height = height
           curRow.ascent = ascent
