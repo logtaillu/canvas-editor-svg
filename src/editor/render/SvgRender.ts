@@ -22,6 +22,7 @@ export default class SvgRender extends AbstractRender {
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
     svg.style.width = `${width}px`
     svg.style.height = `${height}px`
+    svg.style.userSelect = 'none'
     svg.classList.add('svg-page')
     this.element = svg
     this.currentElement = svg
