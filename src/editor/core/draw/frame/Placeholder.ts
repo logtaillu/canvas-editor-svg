@@ -57,12 +57,12 @@ export class Placeholder {
     const headerExtraHeight = this.draw.getHeader().getExtraHeight()
     const innerWidth = this.draw.getInnerWidth()
     const margins = this.draw.getMargins()
-    let startX = margins[3]
+    let startX = margins[3] + this.options.column.margins[3]
     // 换行符绘制开启时，移动起始位置
     if (!lineBreak.disabled) {
       startX += (LineBreakParticle.WIDTH + LineBreakParticle.GAP) * scale
     }
-    const startY = options?.startY || margins[0] + headerExtraHeight
+    const startY = options?.startY || margins[0] + headerExtraHeight + this.options.column.margins[0]
     this.position.computePageRowPosition({
       positionList: this.positionList,
       rowList: this.rowList,
@@ -71,7 +71,8 @@ export class Placeholder {
       startIndex: 0,
       startX,
       startY,
-      innerWidth
+      innerWidth,
+      column: this.options.column
     })
   }
 
