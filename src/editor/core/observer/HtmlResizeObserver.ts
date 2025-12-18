@@ -36,7 +36,6 @@ export class HtmlResizeObserver {
       })
       elements.forEach(element => {
         const el = document.getElementById(element.id!)?.firstElementChild
-        console.log(el)
         if (el) {
           this.elements.push(element)
           observer.observe(el)

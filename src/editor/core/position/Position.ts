@@ -579,9 +579,10 @@ export class Position {
       }
     }
     // 判断所属行是否存在元素
-    const startX = this.draw.getMargins()[3] + this.draw.getMargins()[3]
+    const startX = this.draw.getMargins()[3]
     const columnCount = this.draw.getOptions().column.count
-    const columnWidth = this.draw.getColumnInnerWidth()
+    // 使用带边距的宽度
+    const columnWidth = this.draw.getColumnWidth()
     const lastLetterList = positionList.filter(
       p => {
         if (p.isLastLetter && p.pageNo === positionNo) {
@@ -617,7 +618,7 @@ export class Position {
             if (headPosition.value === ZERO) {
               curPositionIndex = headIndex
             } else {
-              curPositionIndex = headIndex - 1
+              curPositionIndex = headPosition.columnRowIndex === 0 ? headIndex : headIndex - 1
               hitLineStartIndex = headIndex
             }
           } else {
