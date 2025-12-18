@@ -1399,7 +1399,9 @@ export class Draw {
         startIndex: 0,
         rowIndex: 0,
         rowFlex: elementList?.[0]?.rowFlex || elementList?.[1]?.rowFlex,
-        columnIndex: 0
+        columnIndex: 0,
+        isOneLine: (elementList?.[0]?.imgDisplay === ImageDisplay.INLINE &&
+          elementList[0].type === ElementType.IMAGE) || (elementList?.[0]?.type === ElementType.HTML && !elementList[0].fixWidth)
       })
     }
     // 起始位置及页码计算
@@ -1775,6 +1777,10 @@ export class Draw {
         const size = element.size || defaultSize
         metrics.width = element.width! * scale * size / MathJaxBaseFont
         metrics.height = element.height! * scale * size / MathJaxBaseFont
+        // 相对于文本基线的偏移
+        metrics.boundingBoxDescent = (metrics.height - defaultSize * scale) / 2
+        // 和boundingBoxDescent相加补回行高
+        metrics.boundingBoxAscent = metrics.height - metrics.boundingBoxDescent
       } else {
         // 设置上下标真实字体尺寸
         const size = element.size || defaultSize
@@ -1807,7 +1813,7 @@ export class Draw {
         !element.hide &&
         ((element.imgDisplay !== ImageDisplay.INLINE &&
           element.type === ElementType.IMAGE) ||
-          element.type === ElementType.LATEX || (element.type === ElementType.HTML && element.fixWidth))
+          element.type === ElementType.LATEX || (element.type === ElementType.HTML && !!element.fixWidth))
           ? metrics.height + rowMargin
           : metrics.boundingBoxAscent + rowMargin
       const height =
@@ -1912,6 +1918,7 @@ export class Draw {
             element.controlComponent === ControlComponent.RADIO) &&
           preElement?.controlComponent === ControlComponent.VALUE) ||
         (i !== 0 && element.value === ZERO && !element.area?.hide) || (element.type === ElementType.MATHJAX && element.isBlock) || (preElement?.type === ElementType.MATHJAX && preElement.isBlock)
+      || (element.type === ElementType.HTML && !element.fixWidth) || (preElement?.type === ElementType.HTML && !preElement.fixWidth)
       // 是否宽度不足导致换行
       const isWidthNotEnough = curRowWidth > availableWidth
       const isWrap = isForceBreak || isWidthNotEnough
@@ -1926,7 +1933,9 @@ export class Draw {
           rowIndex: curRow.rowIndex + 1,
           rowFlex: elementList[i]?.rowFlex || elementList[i + 1]?.rowFlex,
           isPageBreak: element.type === ElementType.PAGE_BREAK,
-          columnIndex: 0
+          columnIndex: 0,
+          isOneLine: (element.imgDisplay === ImageDisplay.INLINE &&
+          element.type === ElementType.IMAGE) || (element.type === ElementType.HTML && !element.fixWidth)
         }
         // 控件缩进
         if (
@@ -2003,8 +2012,8 @@ export class Draw {
           curRow.width = availableWidth
         }
         // 行距离顶部偏移量等于行高时 => 行增加默认标准元素偏移量
-        // 如整行都是空格测量偏移量为0，导致行塌陷
-        if (curRow.ascent === rowMargin) {
+        // 如整行都是空格测量偏移量为0，导致行塌陷，排除非文本元素强制占一行的情况
+        if (curRow.ascent === rowMargin && !curRow.isOneLine) {
           const boundingBoxDescent = this.textParticle.measureBasisWord(
             ctx,
             element.font!
@@ -2240,7 +2249,7 @@ export class Draw {
           this.mathjaxParticle.render(ctx, element, x, y + offsetY)
         } else if (element.type === ElementType.HTML) {
           this.textParticle.complete()
-          this.htmlParticle.render(ctx, element, x, y + offsetY)
+          this.htmlParticle.render(ctx, element, x, y + offsetY, zone, pageNo)
         } else if (element.type === ElementType.TABLE) {
           if (isCrossRowCol) {
             rangeRecord.x = x
@@ -2613,7 +2622,7 @@ export class Draw {
       this.background.render(page, pageNo)
     }
     // 绘制区域
-    if (!isPrintMode) {
+    if (!isPrintMode || !this.options.modeRule[EditorMode.PRINT]?.areaDisabled) {
       this.area.render(page, pageNo)
     }
     // 绘制水印
@@ -2621,7 +2630,7 @@ export class Draw {
       this.waterMark.render(page, pageNo)
     }
     // 绘制页边距
-    if (!isPrintMode) {
+    if (!isPrintMode && !(this.mode === EditorMode.EDIT && this.options.modeRule[EditorMode.EDIT]?.marginDisabled)) {
       this.margin.render(page, pageNo)
     }
     // 渲染衬于文字下方元素

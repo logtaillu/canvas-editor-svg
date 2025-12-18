@@ -31,6 +31,7 @@ import { IElement } from './Element'
 import { LocationPosition } from '../dataset/enum/Common'
 import { IRange } from './Range'
 import { IColumnOption } from './Column'
+import { IHtmlOptions } from './Html'
 
 export interface IEditorData {
   header?: IElement[]
@@ -105,6 +106,7 @@ export interface IEditorOption {
   modeRule?: IModeRule
   renderType?: RenderType
   column?: IColumnOption // 分栏配置
+  html?: IHtmlOptions // html类型的配置
 }
 
 export interface IEditorResult {
@@ -148,6 +150,7 @@ export interface IFocusOption {
 export interface IPrintModeRule {
   imagePreviewerDisabled?: boolean
   backgroundDisabled?: boolean
+  areaDisabled?: boolean
 }
 
 export interface IReadonlyModeRule {
@@ -158,8 +161,13 @@ export interface IFormModeRule {
   controlDeletableDisabled?: boolean
 }
 
+export interface IEditModeRule {
+  marginDisabled?: boolean
+}
+
 export interface IModeRule {
   [EditorMode.PRINT]?: IPrintModeRule
   [EditorMode.READONLY]?: IReadonlyModeRule
   [EditorMode.FORM]?: IFormModeRule
+  [EditorMode.EDIT]?: IEditModeRule
 }

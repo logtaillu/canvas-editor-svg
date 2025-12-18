@@ -330,6 +330,11 @@ export default class SvgRender extends AbstractRender {
     this.currentElement.innerHTML = html
   }
   addTempNode(id: string, element: HTMLElement) {
+    if (!this.cacheMap.has(id)) {
+      this.cacheMap.set(id, element)
+      this.current.append(element)
+      return
+    }
     this.cacheMap.set(id, element)
     // 复制一个临时节点
     const tempNode = document.createElement('div')

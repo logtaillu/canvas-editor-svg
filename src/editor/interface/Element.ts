@@ -122,9 +122,16 @@ export interface ILaTexElement {
 }
 
 export interface IHtmlElement {
+  // 元素
   element?: HTMLElement
+  // 固定宽度
   fixWidth?: number
+  // 固定高度
   fixHeight?: number
+  // 属性-创建组件用
+  props?: any
+  // 组件
+  component?: boolean
 }
 
 export interface IDateElement {

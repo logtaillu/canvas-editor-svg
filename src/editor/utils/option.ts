@@ -51,6 +51,7 @@ import { defaultBadgeOption } from '../dataset/constant/Badge'
 import { IBadgeOption } from '../interface/Badge'
 import { defaultModeRuleOption } from '../dataset/constant/Editor'
 import { defaultColumnOptions } from '../dataset/constant/Column'
+import { defaultHtmlOptions } from '../dataset/constant/Html'
 
 export function mergeOption(
   options: IEditorOption = {}
@@ -147,6 +148,10 @@ export function mergeOption(
     form: {
       ...defaultModeRuleOption.form,
       ...options.modeRule?.form
+    },
+    edit: {
+      ...defaultModeRuleOption.edit,
+      ...options.modeRule?.edit
     }
   }
 
@@ -221,6 +226,10 @@ export function mergeOption(
     column: {
       ...defaultColumnOptions,
       ...options.column || {}
+    },
+    html: {
+      ...defaultHtmlOptions,
+      ...options.html || {}
     }
   }
 }

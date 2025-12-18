@@ -23,4 +23,5 @@ export interface IRow {
   rowIndex: number
   isSurround?: boolean
   columnIndex: number
+  isOneLine?: boolean
 }
