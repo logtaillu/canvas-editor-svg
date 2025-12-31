@@ -24,6 +24,7 @@ function getNextPositionIndex(payload: IGetNextPositionIndexPayload) {
       const position = positionList[p]
       p--
       if (position.rowNo === rowNo) continue
+      if(position.readonly) continue
       if (probablePosition[0] && probablePosition[0].rowNo !== position.rowNo) {
         break
       }
@@ -35,6 +36,7 @@ function getNextPositionIndex(payload: IGetNextPositionIndexPayload) {
       const position = positionList[p]
       p++
       if (position.rowNo === rowNo) continue
+      if(position.readonly) continue
       if (probablePosition[0] && probablePosition[0].rowNo !== position.rowNo) {
         break
       }

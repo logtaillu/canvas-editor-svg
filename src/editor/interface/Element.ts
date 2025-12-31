@@ -21,6 +21,8 @@ export interface IElementBasic {
   value: string
   extension?: unknown
   externalId?: string
+  // 只读，禁止删除/选中/复制
+  readonly?: boolean
 }
 
 export interface IElementStyle {
@@ -206,6 +208,7 @@ export interface IElementPosition {
   isLastLetter: boolean
   columnRowIndex: number
   columnIndex: number
+  readonly?: boolean
   coordinate: {
     leftTop: number[]
     leftBottom: number[]

@@ -53,6 +53,14 @@ export function left(evt: KeyboardEvent, host: CanvasEvent) {
         i--
       }
     }
+  } else {
+    while (moveCount<=startIndex) {
+      if (elementList[startIndex - moveCount].readonly) {
+        moveCount++
+      } else {
+        break
+      }
+    }
   }
   const curIndex = startIndex - moveCount
   // shift则缩放选区

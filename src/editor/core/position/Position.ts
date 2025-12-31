@@ -108,6 +108,18 @@ export class Position {
     this.floatPositionList = payload
   }
 
+  findLastIndex(arr: any[], condition: (item: any) => boolean) {
+    let targetIndex = -1
+    for (let i = arr.length - 1; i >= 0; i--) {
+      // 检查当前元素是否满足条件
+      if (condition(arr[i])) {
+        targetIndex = i
+        break
+      }
+    }
+    return targetIndex
+  }
+
   public computePageRowPosition(
     payload: IComputePageRowPositionPayload
   ): IComputePageRowPositionResult {
@@ -193,8 +205,9 @@ export class Position {
           left: element.left || 0,
           ascent: offsetY,
           lineHeight: curRow.height,
-          isFirstLetter: j === 0,
-          isLastLetter: j === curRow.elementList.length - 1,
+          isFirstLetter: j === curRow.elementList.findIndex(s => !s.readonly),
+          isLastLetter: j === this.findLastIndex(curRow.elementList, s => !s.readonly),
+          readonly: element.readonly,
           coordinate: {
             leftTop: [x, y],
             leftBottom: [x, y + curRow.height],
@@ -412,10 +425,12 @@ export class Position {
         pageNo,
         left,
         isFirstLetter,
-        coordinate: { leftTop, rightTop, leftBottom }
+        coordinate: { leftTop, rightTop, leftBottom },
+        readonly
       } = positionList[j]
       if (positionNo !== pageNo) continue
       if (pageNo > positionNo) break
+      if(readonly) continue
       // 命中元素
       if (
         leftTop[0] - left <= x &&

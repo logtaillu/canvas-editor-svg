@@ -513,10 +513,14 @@ export function formatElementList(
       el.isBlock = block
       if (block) {
         el.rowFlex = RowFlex.CENTER
+        elementList.splice(i + 1, 0, { value: '\n' })
       }
       el.id = el.id || getUUID()
     } else if (el.type === ElementType.HTML) {
       el.id = el.id || getUUID()
+      if (!el.fixWidth) {
+         elementList.splice(i + 1, 0, { value: '\n' })
+      }
     }
     i++
   }

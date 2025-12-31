@@ -107,6 +107,10 @@ export function backspace(evt: KeyboardEvent, host: CanvasEvent) {
     }
     //  替换当前行对齐方式
     const startElement = elementList[startIndex]
+    // 如果前一个元素readonly,在这里停止
+    if (startIndex > 0 && elementList[startIndex - 1].readonly) {
+      return
+    }
     if (isCollapsed && startElement.rowFlex && startElement.value === ZERO) {
       const rowFlexElementList = rangeManager.getRangeRowElementList()
       if (rowFlexElementList) {

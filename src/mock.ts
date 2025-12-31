@@ -500,9 +500,12 @@ elementList.push({
   value: `<div style="text-align: center;background: lightblue;">
   <p>12345</p>
   <p>23456</p>
-  </div>`
+  </div>`,
+  readonly: true
 })
-
+elementList.push({
+  value: `abcd`
+})
 export const data: IElement[] = elementList
 
 interface IComment {

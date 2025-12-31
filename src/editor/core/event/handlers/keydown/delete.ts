@@ -9,9 +9,10 @@ function deleteHideElement(host: CanvasEvent) {
   const elementList = draw.getElementList()
   const nextElement = elementList[range.startIndex + 1]
   if (
+    !nextElement ||(
     !nextElement.hide &&
     !nextElement.control?.hide &&
-    !nextElement.area?.hide
+    !nextElement.area?.hide)
   ) {
     return
   }
@@ -97,7 +98,7 @@ export function del(evt: KeyboardEvent, host: CanvasEvent) {
           endIndex - startIndex
         )
       } else {
-        if (!elementList[index + 1]) return
+        if (!elementList[index + 1] || elementList[index + 1].readonly) return
         draw.spliceElementList(elementList, index + 1, 1)
       }
       curIndex = isCollapsed ? index : startIndex
